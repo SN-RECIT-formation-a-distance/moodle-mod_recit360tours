@@ -1,0 +1,36 @@
+{
+  "name": "recit_activity",
+  "version": "0.0.1",
+  "description": "Activité RÉCIT 360",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "parcel ./src/index.js --out-dir .//build",
+    "build": "parcel build ./src/index.js --out-dir ./build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "1.2.35",
+    "@fortawesome/free-solid-svg-icons": "5.15.3",
+    "@fortawesome/react-fontawesome": "0.1.14",
+    "aframe": "1.3.0",
+    "aframe-drag-controls": "^1.0.0",
+    "aframe-gui": "0.5.1",
+    "bootstrap": "4.6",
+    "date-fns": "2.22.1",
+    "react": "^18.2.0",
+    "react-bootstrap": "1.6.4",
+    "react-dom": "^18.2.0",
+    "react-select": "^5.3.2"
+  },
+  "devDependencies": {
+    "babel-core": "6.26.3",
+    "babel-plugin-transform-class-properties": "6.24.1",
+    "babel-preset-env": "1.7.0",
+    "babel-preset-react": "6.24.1",
+    "parcel-bundler": "1.12.5",
+    "sass": "1.34.1"
+  }
+}
