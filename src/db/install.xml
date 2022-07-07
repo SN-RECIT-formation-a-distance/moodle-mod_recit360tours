@@ -41,7 +41,7 @@
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="sceneid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="type" TYPE="varchar" LENGTH="100" NOTNULL="true"/>
+        <FIELD NAME="type" TYPE="char" LENGTH="100" NOTNULL="true"/>
         <FIELD NAME="object" TYPE="text" NOTNULL="true" />
         <FIELD NAME="completion" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
