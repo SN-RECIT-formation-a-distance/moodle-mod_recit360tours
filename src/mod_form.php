@@ -37,11 +37,10 @@ class mod_recit360tours_mod_form extends moodleform_mod {
     }
 
     public function displayGeneralOptions(){
+        global $CFG;
         $mform = $this->_form;
         $mform->addElement('header', 'general', get_string('general', 'form'));
         $mform->addElement('text', 'name', get_string('name'), array('size'=>'48'));
-        $mform->addElement('text', 'grade', get_string('maxgrade', 'recit360tours'));
-        $mform->setType('grade', PARAM_INT);
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('name', PARAM_TEXT);
         } else {
@@ -54,5 +53,59 @@ class mod_recit360tours_mod_form extends moodleform_mod {
         $attributes = $element->getAttributes();
         $attributes['rows'] = 5;
         $element->setAttributes($attributes);
-    } 
+    }
+
+    /**
+     * Add elements for setting the custom completion rules.
+     *
+     * @return array List of added element names, or names of wrapping group elements.
+     * @category completion
+     */
+    public function add_completion_rules(): array {
+        $mform = $this->_form;
+
+        // Elements for completion by Attendance.
+        $attendance['grouplabel'] = get_string('completionobjects', 'recit360tours');
+        $attendance['rulelabel'] = get_string('completionobjects_desc', 'recit360tours');
+        $attendance['group'] = [
+            $mform->createElement('advcheckbox', 'completionobjects', '', $attendance['rulelabel'] . '&nbsp;')
+        ];
+        $mform->addGroup($attendance['group'], 'completionobjectsgroup', $attendance['grouplabel'], [' '], false);
+
+        return ['completionobjectsgroup'];
+    }
+
+    /**
+     * Called during validation to see whether some module-specific completion rules are selected.
+     *
+     * @param array $data Input data not yet validated.
+     * @return bool True if one or more rules is enabled, false if none are.
+     */
+    public function completion_rule_enabled($data) {
+        return !empty($data['completionobjects']);
+    }
+
+    function data_preprocessing(&$default_values){
+    
+        // Set up the completion checkboxes which aren't part of standard data.
+        // We also make the default value (if you turn on the checkbox) for those
+        // numbers to be 1, this will not apply unless checkbox is ticked.
+        $default_values['completionobjects']= !empty($default_values['completionobjects']) ? 1 : 0;
+    }
+
+    function get_data() {
+        $data = parent::get_data();
+        if (!$data) {
+            return $data;
+        }
+        if (!empty($data->completionunlocked)) {
+            // Turn off completion settings if the checkboxes aren't ticked
+            $autocompletion = !empty($data->completion) && $data->completion==COMPLETION_TRACKING_AUTOMATIC;
+            $data->completionobjects = !empty($data->completionobjects) ? 1 : 0;
+            if (empty($data->completionpostsenabled) || !$autocompletion) {
+               //$data->completionobjects = 0;
+            }
+        }
+        return $data;
+    }
 }

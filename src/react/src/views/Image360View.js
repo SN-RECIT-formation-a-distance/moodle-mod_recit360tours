@@ -37,7 +37,7 @@ export class ViewImage360 extends Component{
     }
 
     getData(){
-        $glVars.webApi.getImage360FormKit($glVars.urlParams.id, this.getDataResult.bind(this));        
+        $glVars.webApi.getImage360FormKit($glVars.urlParams.id, $glVars.urlParams.tourId, this.getDataResult.bind(this));        
     }
 
     getDataResult(result){         
@@ -78,22 +78,52 @@ export class ViewImage360 extends Component{
         }
 
         this.state.init = true;
-        for (let obj of this.state.data){
-            this.createSceneFromObjects(obj.objects, this.state.sceneRef);
+        let start = false;
+        for (let sc of this.state.data){
+            this.createSceneFromObjects(sc, this.state.sceneRef);
+            if (sc.startscene) start = true;
         }
+        
+        if (!start){
+            alert('Pas de scene de départ selectionné')
+        }
+
+        $glVars.webApi.getLastViewedScene($glVars.urlParams.tourId, (result) => {
+            if (result.data && result.data.objectid){
+                for (let sc of this.state.data){
+                    if (sc.objects.children){
+                        for (let obj of sc.objects.children){
+                            if (obj.id == result.data.objectid){
+                                let hotspot = document.querySelector('[data-key="'+obj.key+'"]');
+                                if (hotspot){
+                                    hotspot.click();
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        })
     }
 
-    createSceneFromObjects(objects, scene){
-        let el2 = Panorama.Create({src: objects.srcUrl, id: objects.id})
+    createSceneFromObjects(sc, scene){
+        let el2 = Panorama.Create({src: sc.objects.srcUrl, id: sc.elid})
         scene.appendChild(el2);
         this.editingPanorama = el2;
-        if (objects.children){
-            for (let obj of objects.children){
-                let el = aframeComponentFactory.CreateComponent(obj);
+        if (sc.objects.children){
+            for (let obj of sc.objects.children){
+                let el = aframeComponentFactory.CreateComponent(obj, (e) => this.onElementClick(obj, e));
                 el2.appendChild(el);
             }
         }
         this.state.sceneRef.components.tour.init();
+    }
+
+    onElementClick(obj, e){
+        if (obj.completion){
+            $glVars.webApi.saveObjectView(obj.id, function(){})
+        }
     }
 
 }
@@ -149,38 +179,9 @@ export class EditImage360 extends Component{
     constructor(props){
         super(props);
 
-        this.getData = this.getData.bind(this);
-        this.onAdd = this.onAdd.bind(this);
-        this.onEdit = this.onEdit.bind(this);
-        this.onRemove = this.onRemove.bind(this);
         this.onClose = this.onClose.bind(this);
-        this.onDragRow = this.onDragRow.bind(this);
-        this.onDropRow = this.onDropRow.bind(this);
 
-        this.state = {cmId: $glVars.urlParams.id, data: null, pageId: -1, pageList: [], preview: false, editor: -1, draggingItem: null};
-    }
-
-    componentDidMount(){
-        //$glVars.webApi.addObserver("Image360", this.getData, ['savePageSetup', 'removePage']);
-        //this.getData();
-    }
-
-    componentWillUnmount(){
-        //$glVars.webApi.removeObserver("Image360");
-    }
-
-    getData(){
-        /*let that = this;
-
-        let callback = function(result){
-            if(!result.success){
-                FeedbackCtrl.instance.showError($glVars.i18n.appName, result.msg);
-                return;
-            }
-            that.setState({displayType: JsNx.get(JsNx.at(result.data, 0, null), 'displayType', 1), pageList: result.data});
-        }
-
-        $glVars.webApi.getPages(this.state.cmId, callback);*/
+        this.state = {cmId: $glVars.urlParams.id, data: null, pageId: -1, editor: -1};
     }
 
     render(){
@@ -193,57 +194,13 @@ export class EditImage360 extends Component{
         return (main);
     }
 
-    onAdd(){
-       // this.setState({pageId: 0});
-    }
-
-    onEdit(pageId){
-       // this.setState({pageId: pageId});
-    }
-
     onClose(){
         this.setState({pageId: -1, editor: -1});
-    }
-
-    onRemove(item){
-        /*let callback = function(result){
-            if(result.success){
-                $glVars.feedback.showInfo($glVars.i18n.tags.appName, $glVars.i18n.tags.msgSuccess, 3);
-            }
-            else{
-                $glVars.feedback.showError($glVars.i18n.tags.appName, result.msg);
-            }
-        }
-
-        if(window.confirm(`${$glVars.i18n.tags.msgConfirmDeletion}\n\n${$glVars.i18n.tags.msgRemovePage}`)){
-            $glVars.webApi.removePage(item.cmId, item.pageId, callback);
-        }*/
-    }
-
-    onDragRow(item, index){
-       // this.setState({draggingItem: item});
-    }
-
-    onDropRow(item, index){
-        /*let that = this;
-        let callback = function(result){
-            if(!result.success){
-                $glVars.feedback.showError($glVars.i18n.tags.appName, result.msg);
-                return;
-                
-            }
-            
-            that.getData();
-        }
-        $glVars.webApi.switchPageSlot(this.state.cmId, this.state.draggingItem.pageId, item.pageId, callback);*/
     }
 }
 
 export class ModalImage360Editor extends Component
 {
-    static defaultProps = {        
-        pageId: 0,
-    };
 
     constructor(props){
         super(props);
@@ -267,7 +224,7 @@ export class ModalImage360Editor extends Component
     }
 
     getData(){
-        $glVars.webApi.getImage360FormKit($glVars.urlParams.id, this.getDataResult);        
+        $glVars.webApi.getImage360FormKit($glVars.urlParams.tourId, $glVars.urlParams.tourId, this.getDataResult);        
     }
 
     getDataResult(result){         
@@ -318,7 +275,7 @@ export class ModalImage360Editor extends Component
 
     onDelete(resourceId){
         if (confirm("Êtes-vous sûr de vouloir supprimer cette scène?")){
-            $glVars.webApi.deleteResource(resourceId, (result) => {
+            $glVars.webApi.deleteScene(resourceId, (result) => {
                 if(result.success){
                     this.getData()
                 }
@@ -374,11 +331,12 @@ class ResourceForm extends Component
     }
 
     getData(){
-        $glVars.webApi.getResourceFormKit(this.props.resourceId, this.getDataResult);        
+        $glVars.webApi.getSceneFormKit(this.props.resourceId, this.getDataResult);        
     }
 
     getDataResult(result){         
         if(result.success){
+            result.data.tourId = $glVars.urlParams.tourId;
             result.data.cmId = $glVars.urlParams.id;
             this.setState({data: result.data});
         }
@@ -417,11 +375,11 @@ class ResourceForm extends Component
                         <Form.Row>
                             <Form.Group as={Col}>
                                 <Form.Label>{"Image 360"}</Form.Label><br/>
-                                <BtnUpload type="file" required name='src' accept="image/jpeg,.mp4" onChange={(e) => this.onFileChange(e)}/>
+                                <BtnUpload type="file" required name='image' accept="image/jpeg,.mp4" onChange={(e) => this.onFileChange(e)}/>
                                 <br/>
-                                {this.state.data.objects.src !== null && 
-                                    <div className='d-flex justify-content-center' >
-                                        <img src={this.state.data.objects.src.content} style={{maxWidth: "50%"}}/>
+                                {this.state.data.image && 
+                                    <div className='d-flex justify-content-center'>
+                                        <img src={this.state.data.image.content} style={{maxWidth: "50%"}}/>
                                     </div>
                                 }
                             </Form.Group>
@@ -470,7 +428,7 @@ class ResourceForm extends Component
         reader.readAsDataURL(event.target.files[0]);
         reader.onload = () => {
             data.type = 'file';
-            data.objects[event.target.name] = {content:reader.result, fileName:event.target.files[0].name};
+            data[event.target.name] = {content:reader.result, fileName:event.target.files[0].name};
             this.setState({data: data})
         };
     }
@@ -479,9 +437,6 @@ class ResourceForm extends Component
         if (e) e.preventDefault();
         let data = this.state.data;
 
-        if (typeof data.objects.id == 'undefined'){
-            data.objects.id = "pano" + Date.now();
-        }
         if (typeof data.startscene == 'undefined'){
             data.startscene = 0;
         }
@@ -495,7 +450,18 @@ class ResourceForm extends Component
     }
 
     onSave(){
-        $glVars.webApi.saveResource(this.state.data, this.onSaveResult);
+        $glVars.webApi.saveScene(this.state.data, this.onSaveResult);
+    }
+
+    createSceneObject(dataToAdd){
+        let obj = {}
+        obj.id = 0;
+        if (dataToAdd.id) obj.id = dataToAdd.id;
+        obj.sceneId = this.state.data.id;
+        obj.object = dataToAdd;
+        obj.completion = dataToAdd.completion;
+        obj.type = dataToAdd.type;
+        return obj;
     }
 
     addChildrenToScene(dataToAdd){
@@ -504,8 +470,13 @@ class ResourceForm extends Component
         if (typeof data.objects.children == 'undefined'){
             data.objects.children = [];
         }
-        data.objects.children.push(dataToAdd);
-        this.setState({data:data}, this.onSave);
+
+        let obj = this.createSceneObject(dataToAdd);
+        $glVars.webApi.saveObject(obj, (dataAdded) => {
+            obj.id = dataAdded.id;
+            data.objects.children.push(obj);
+            this.setState({data:data});
+        });
     }
 
     onEditChildren(key, dataToEdit){
@@ -515,11 +486,14 @@ class ResourceForm extends Component
                 for (let k in dataToEdit){
                     data.objects.children[i][k] = dataToEdit[k];
                 }
+
+                let obj = this.createSceneObject(data.objects.children[i]);
+                $glVars.webApi.saveObject(obj, function(){});
                 break;
             }
         }
         
-        this.setState({data:data}, this.onSave);
+        this.setState({data:data});
     }
     
     onDeleteChildren(key){
@@ -530,11 +504,12 @@ class ResourceForm extends Component
                     data.objects.children[i].cmId = $glVars.urlParams.id;
                     $glVars.webApi.deleteFile(data.objects.children[i], function(){});
                 }
+                $glVars.webApi.deleteObject(data.objects.children[i].id, function(){});
                 data.objects.children.splice(i, 1)
                 break;
             }
         }
-        this.setState({data:data}, this.onSave);
+        this.setState({data:data});
     }
 
     onSaveResult(result){
@@ -706,7 +681,7 @@ class Image360Form extends Component{
                 tmp.extra = {text: event.target.getAttribute('text').value, el: event.target};
             }
             if (type == 'navigation'){
-                tmp.extra = {name: event.currentTarget.getAttribute('hotname'),rotationstart: event.currentTarget.getAttribute('rotationstart').split(','), el: event.currentTarget};
+                tmp.extra = {name: event.currentTarget.getAttribute('hotname'),rotationstart: event.currentTarget.getAttribute('rotationstart')?.split(','), el: event.currentTarget};
             }
             if (type == 'image'){
                 tmp.extra = {file: event.currentTarget.getAttribute('filename'), el: event.currentTarget};
@@ -720,6 +695,9 @@ class Image360Form extends Component{
             if (type == 'iframe'){
                 tmp.extra = {url: event.currentTarget.getAttribute('data-url'), name: event.currentTarget.getAttribute('hover-text'), el: event.currentTarget};
             }
+
+            //Valid for all
+            tmp.extra.completion = parseInt(event.currentTarget.getAttribute('data-completion')) ? 1 :0;
             this.setState({data: tmp});
         //}
     }
@@ -752,14 +730,14 @@ class Image360Form extends Component{
         }
         
         if (data.type == 'text'){
-            dataToEdit = {text: data.text};
+            dataToEdit = {text: data.text, completion: data.completion};
             if(tmp.extra && tmp.extra.el){
                 AText.Edit(tmp.extra.el, dataToEdit);
             }
             tmp.extra = dataToEdit;
         }
         if (data.type == 'navigation'){
-            dataToEdit = {};
+            dataToEdit = {completion: data.completion};
             if (data.name){
                 dataToEdit.name = data.name;
             }
@@ -767,17 +745,17 @@ class Image360Form extends Component{
                 dataToEdit.rotationstart = data.rotationstart;
             }
             if (data.res){
-                dataToEdit.to = data.res.objects.id;
+                dataToEdit.to = data.res.elid;
             }
             if(tmp.extra && tmp.extra.el){
                 Navigation.Edit(tmp.extra.el, dataToEdit);
             }
             if (data.res){
-                tmp.extra = {imgUrl: data.res.objects.srcUrl, id: data.res.objects.id, name: data.name, rotationstart: data.rotationstart};
+                tmp.extra = {imgUrl: data.res.objects.srcUrl, to: data.res.elid, name: data.name, rotationstart: data.rotationstart, completion: data.completion};
             }
         }
         if (data.type == 'iframe'){
-            dataToEdit = {name: data.name, url: data.url};
+            dataToEdit = {name: data.name, url: data.url, completion: data.completion};
             if(tmp.extra && tmp.extra.el){
                 AIframe.Edit(tmp.extra.el, dataToEdit);
             }
@@ -786,7 +764,7 @@ class Image360Form extends Component{
             }
         }
         if (data.type == 'image'){
-            dataToEdit = {};
+            dataToEdit = {completion: data.completion};
             if (data.file){
                 dataToEdit.file = data.file;
                 dataToEdit.fileUrl = data.fileUrl;
@@ -797,7 +775,7 @@ class Image360Form extends Component{
             tmp.extra = dataToEdit;
         }
         if (data.type == 'sound'){
-            dataToEdit = {loop: data.loop, autoplay: data.autoplay};
+            dataToEdit = {loop: data.loop, autoplay: data.autoplay, completion: data.completion};
             if (data.file){
                 dataToEdit.file = data.file;
                 dataToEdit.fileUrl = data.fileUrl;
@@ -808,7 +786,7 @@ class Image360Form extends Component{
             tmp.extra = dataToEdit;
         }
         if (data.type == 'video'){
-            dataToEdit = {loop: data.loop, autoplay: data.autoplay};
+            dataToEdit = {loop: data.loop, autoplay: data.autoplay, completion: data.completion};
             if (data.file){
                 dataToEdit.file = data.file;
                 dataToEdit.fileUrl = data.fileUrl;
@@ -842,13 +820,14 @@ class Image360
         this.state = {init: false, sceneRef: null, data: null};
     }
 
-    render(data){
+    render(data, scene){
         this.init();
 
         if(!data.objects){ return null; }
         if(data.objects.srcUrl.length === 0){ return null; }
         
         this.state.data = data;
+        this.state.scene = scene;
 
         let main =
             <a-scene embedded cursor="rayOrigin: mouse" raycaster="objects: .clickable,[gui-interactable]">
@@ -876,7 +855,7 @@ class Image360
         this.state.sceneRef.addEventListener('click', this.onSceneClick);
         this.state.sceneRef.addEventListener('click', this.onMouseMove)
         this.state.init = true;
-        this.createSceneFromObjects(this.state.data.objects, this.state.sceneRef);
+        this.createSceneFromObjects(this.state.data.objects, this.state.sceneRef, this.state.scene);
     }
 
     addSphere(){
@@ -918,13 +897,14 @@ class Image360
         }
     }
 
-    createSceneFromObjects(objects, scene){
-        let el2 = Panorama.Create({src: objects.srcUrl, id: objects.id})
+    createSceneFromObjects(objects, scene, sc){
+        let el2 = Panorama.Create({src: objects.srcUrl, id: sc.elid})
         scene.appendChild(el2);
         this.editingPanorama = el2;
 
         if (objects.children){
             for (let obj of objects.children){
+                obj.noOpen = true;
                 let el = aframeComponentFactory.CreateComponent(obj, (e) => this.onElementClick(obj.type, e));
                 el2.appendChild(el);
             }
@@ -946,29 +926,31 @@ class Image360
         
         let el1 = null
         let data = null
+        let commonData = {position: {x: point.x, y: point.y, z: point.z}, rotation: {x: rot.x, y: rot.y, z: 0}, completion: this.state.data.extra.completion, key: 'element-'+Date.now()};
+
         switch(this.state.data.action.type){
             case 'text':
-                data = {type: 'text', position: {x: point.x, y: point.y, z: point.z}, rotation: {x: rot.x, y: rot.y, z: 0}, backgroundColor: '#ffffff', color: '#000', fontSize: '20px', text: this.state.data.extra.text, key: 'element-'+Date.now()};
+                data = {type: 'text', backgroundColor: '#ffffff', color: '#000', fontSize: '20px', text: this.state.data.extra.text, ...commonData};
                 el1 = AText.Create(data, (e) => this.onElementClick(data.type, e));
                 break;
             case 'navigation':
-                data = {type: 'navigation', position: {x: point.x, y: point.y, z: point.z}, rotation: {x: rot.x, y: rot.y, z: 0}, name: this.state.data.extra.name, for: this.state.data.objects.id, rotationstart: this.state.data.extra.rotationstart, to: this.state.data.extra.id, key: 'element-'+Date.now()};
+                data = {type: 'navigation', name: this.state.data.extra.name, for: this.state.scene.elid, rotationstart: this.state.data.extra.rotationstart, to: this.state.data.extra.to, ...commonData};
                 el1 = Navigation.Create(data, (e) => this.onElementClick(data.type, e));
                 break;
             case 'iframe':
-                data = {type: 'iframe', position: {x: point.x, y: point.y, z: point.z}, rotation: {x: rot.x, y: rot.y, z: 0}, name: this.state.data.extra.name, url: this.state.data.extra.url, key: 'element-'+Date.now()};
+                data = {type: 'iframe', name: this.state.data.extra.name, url: this.state.data.extra.url, ...commonData};
                 el1 = AIframe.Create(data, (e) => this.onElementClick(data.type, e));
                 break;
             case 'image':
-                data = {type: 'image', position: {x: point.x, y: point.y, z: point.z}, rotation: {x: rot.x, y: rot.y, z: 0}, file: this.state.data.extra.file, fileUrl: this.state.data.extra.fileUrl, key: 'element-'+Date.now()};
+                data = {type: 'image', file: this.state.data.extra.file, fileUrl: this.state.data.extra.fileUrl, ...commonData};
                 el1 = AImage.Create(data, (e) => this.onElementClick(data.type, e));
                 break;
             case 'sound':
-                data = {type: 'sound', position: {x: point.x, y: point.y, z: point.z}, rotation: {x: rot.x, y: rot.y, z: 0}, file: this.state.data.extra.file, fileUrl: this.state.data.extra.fileUrl, loop: this.state.data.extra.loop, autoplay: this.state.data.extra.autoplay, key: 'element-'+Date.now()};
+                data = {type: 'sound', file: this.state.data.extra.file, fileUrl: this.state.data.extra.fileUrl, loop: this.state.data.extra.loop, autoplay: this.state.data.extra.autoplay, ...commonData};
                 el1 = ASound.Create(data, (e) => this.onElementClick(data.type, e));
                 break;
             case 'video':
-                data = {type: 'video', position: {x: point.x, y: point.y, z: point.z}, rotation: {x: rot.x, y: rot.y, z: 0}, file: this.state.data.extra.file, fileUrl: this.state.data.extra.fileUrl, loop: this.state.data.extra.loop, autoplay: this.state.data.extra.autoplay, key: 'element-'+Date.now()};
+                data = {type: 'video', file: this.state.data.extra.file, fileUrl: this.state.data.extra.fileUrl, loop: this.state.data.extra.loop, autoplay: this.state.data.extra.autoplay, ...commonData};
                 el1 = AVideo.Create(data, (e) => this.onElementClick(data.type, e));
                 break;
             default:
@@ -1004,6 +986,7 @@ class ModalElementForm extends Component
         if (!this.state.data.name) this.state.data.name = '';
         if (!this.state.data.text) this.state.data.text = '';
         if (!this.state.data.url) this.state.data.url = '';
+        if (!this.state.data.completion) this.state.data.completion = 0;
         this.state.data.type = props.type
 
         this.formRef = React.createRef();
@@ -1167,7 +1150,20 @@ class ModalElementForm extends Component
                 return;
             
         }
-        return body
+
+        let appendToAll = 
+        <Form.Row key="2">
+            <Form.Group as={Col}>
+                <Form.Label>Completion</Form.Label>
+                <ToggleButtons name="completion" type="radio" defaultValue={[this.state.data.completion]} onChange={this.onDataChange} 
+                        options={[
+                            {value: 1, text:"Oui"},
+                            {value: 0, text:"Non"}
+                        ]}/>
+            </Form.Group>
+        </Form.Row>;
+
+        return [<div key="1">{body}</div>,appendToAll];
     }
 
     onClose(){

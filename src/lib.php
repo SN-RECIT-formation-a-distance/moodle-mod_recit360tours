@@ -36,12 +36,13 @@ use recit360tours\PersistCtrl;
  */
 function recit360tours_supports($feature) {
     switch($feature) {
-        //case FEATURE_MOD_ARCHETYPE:           return MOD_ARCHETYPE_RESOURCE;
+        //case FEATURE_ARCHETYPE:           return ARCHETYPE_RESOURCE;
         //case FEATURE_GROUPS:                  return false;
         //case FEATURE_GROUPINGS:               return false;
         case FEATURE_MOD_INTRO:               return true;
         case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
-        case FEATURE_GRADE_HAS_GRADE:         return true;
+        //case FEATURE_GRADE_HAS_GRADE:         return true;
+        case FEATURE_COMPLETION_HAS_RULES:         return true;
         //case FEATURE_GRADE_OUTCOMES:          return true;
         case FEATURE_BACKUP_MOODLE2:          return true;
         case FEATURE_SHOW_DESCRIPTION:        return true;
@@ -92,104 +93,12 @@ function recit360tours_delete_instance($id) {
         return true;
     }
 
-    $DB->execute("DELETE FROM {recit360tours_pages_views} WHERE id IN (SELECT rapageid FROM {recit360tours_pages} WHERE raid=$id)");
+    $DB->execute("DELETE FROM {recit360tours_objects} WHERE sceneid IN (SELECT id FROM {recit360tours_scenes} WHERE tourid=$id)");
+    $DB->execute("DELETE FROM {recit360tours_views} WHERE sceneid IN (SELECT id FROM {recit360tours_scenes} WHERE tourid=$id)");
     $DB->delete_records('recit360tours', array('id'=>$recit360tours->id));
-    $DB->delete_records('recit360tours_pages', array('raid'=>$recit360tours->id));
+    $DB->delete_records('recit360tours_scenes', array('tourid'=>$recit360tours->id));
 
     return true;
-}
-
-
-/**
- * Update grades in central gradebook
- *
- * @category grade
- * @param object $lesson
- * @param int $userid specific user only, 0 means all
- * @param bool $nullifnone
- */
-function recit360tours_update_grades($lesson, $userid, $nullifnone=true) {
-    global $CFG, $DB, $USER;    
-
-    if ($grades = PersistCtrl::getInstance($DB, $USER)->getUsersGrades($lesson->instance, $userid)) {
-        recit360tours_grade_item_update($lesson, $grades);
-
-    } else if ($userid and $nullifnone) {
-        $grade = new stdClass();
-        $grade->userid   = $userid;
-        $grade->rawgrade = null;
-        recit360tours_grade_item_update($lesson, $grade);
-
-    } else {
-        recit360tours_grade_item_update($lesson);
-    }
-}
-
-/**
- * Create grade item for given lesson
- *
- * @category grade
- * @uses GRADE_TYPE_VALUE
- * @uses GRADE_TYPE_NONE
- * @param object $lesson object with extra cmidnumber
- * @param array|object $grades optional array/object of grade(s); 'reset' means reset grades in gradebook
- * @return int 0 if ok, error code otherwise
- */
-function recit360tours_grade_item_update($lesson, $grades=null) {
-    global $CFG;
-    if (!function_exists('grade_update')) { //workaround for buggy PHP versions
-        require_once($CFG->libdir.'/gradelib.php');
-    }
-
-    if (property_exists($lesson, 'cmidnumber')) { //it may not be always present
-        $params = array('itemname'=>$lesson->name, 'idnumber'=>$lesson->cmidnumber);
-    } else {
-        $params = array('itemname'=>$lesson->name);
-    }
-
-    if (is_numeric($lesson->grade) && $lesson->grade > 0) {
-        $params['gradetype']  = GRADE_TYPE_VALUE;
-        $params['grademax']   = $lesson->grade;
-        $params['grademin']   = 0;
-    } else {
-        $params['gradetype']  = GRADE_TYPE_NONE;
-    }
-
-    if ($grades  === 'reset') {
-        $params['reset'] = true;
-        $grades = null;
-    } else if (!empty($grades) && is_numeric($lesson->grade)) {
-        // Need to calculate raw grade (Note: $grades has many forms)
-        $gradesToSend = array();
-        if (is_object($grades)) {
-            $grades = array($grades->userid => $grades);
-        } else if (array_key_exists('userid', $grades)) {
-            $grades = array($grades['userid'] => $grades);
-        }
-        foreach ($grades as $key => $grade) {
-            if (!is_array($grade)) {
-                $grades[$key] = $grade = (array) $grade;
-            }
-            //check raw grade isnt null otherwise we erroneously insert a grade of 0
-            if ($grade['grade'] !== null) {
-                $gradesToSend[$grade['userid']] = array('rawgrade' => $grade['grade'], 'userid' => $grade['userid']);
-            } else {
-                //setting rawgrade to null just in case user is deleting a grade
-                $gradesToSend[$grade['userid']] = array('rawgrade' => null, 'userid' => $grade['userid']);
-            }
-        }
-    }
-
-    grade_update('mod/recit360tours', $lesson->course, 'mod', 'recit360tours', $lesson->id, 0, $gradesToSend, $params);
-}
-
-function recit360tours_attempt_callback($e){
-    global $DB;
-    $cm = get_coursemodule_from_id('recit360tours', $e->get_context()->instanceid, $e->courseid);
-    if (!$cm) return;
-    $cmdata = $DB->get_record('recit360tours', array('id'=>$cm->instance));
-    $cmdata->instance = $cm->instance;
-    recit360tours_update_grades($cmdata, $e->userid);
 }
 
 function recit360tours_reset_userdata($data) {
@@ -198,7 +107,7 @@ function recit360tours_reset_userdata($data) {
         $recitact = $DB->get_records('recit360tours', array('course'=>$data->courseid));
         foreach ($recitact as $v){
             $id = $v->id;
-            $DB->execute("DELETE FROM {recit360tours_pages_views} WHERE id IN (SELECT rapageid FROM {recit360tours_pages} WHERE raid=$id)");
+            $DB->execute("DELETE FROM {recit360tours_views} WHERE sceneid IN (SELECT id FROM {recit360tours_scenes} WHERE tourid=$id)");
         }
     }
     return array(
@@ -213,10 +122,94 @@ function recit360tours_reset_course_form_defaults($course) {
 }
 
 function recit360tours_reset_course_form_definition(&$mform) {
-    $mform->addElement('header', 'recitcahiertracesheader', get_string('modulenameplural', 'recit360tours'));
+    $mform->addElement('header', 'recitheader', get_string('modulenameplural', 'recit360tours'));
 
     $mform->addElement('checkbox', 'reset_userdata', get_string('reset'));
 
+}
+
+/**
+ * This flags this module with the capability to override the completion status with the custom completion rules.
+ *
+ * @return int
+ */
+function recit360tours_get_completion_aggregation_state() {
+    return COMPLETION_CUSTOM_MODULE_FLOW;
+}
+
+/**
+ * Given a course_module object, this function returns any
+ * "extra" information that may be needed when printing
+ * this activity in a course listing.
+ * See get_array_of_activities() in course/lib.php.
+ *
+ * @param stdClass $coursemodule
+ *
+ * @return null|cached_cm_info
+ */
+function recit360tours_get_coursemodule_info($coursemodule) {
+    global $DB;
+
+    $dbparams = ['id' => $coursemodule->instance];
+    $recit360tours = $DB->get_record('recit360tours', $dbparams);
+    if (!$recit360tours) {
+        return null;
+    }
+    $info = new cached_cm_info();
+    $info->name = $recit360tours->name;
+    if ($coursemodule->showdescription) {
+        // Convert intro to html. Do not filter cached version, filters run at display time.
+        $info->content = format_module_intro('recit360tours', $recit360tours, $coursemodule->id, false);
+    }
+    // Populate the custom completion rules as key => value pairs, but only if the completion mode is 'automatic'.
+    if ($coursemodule->completion == COMPLETION_TRACKING_AUTOMATIC) {
+        $info->customdata['customcompletionrules']['completionobjects'] = $recit360tours->completionobjects;
+    }
+
+    return $info;
+}
+
+/**
+* Obtains the automatic completion state for this forum based on any conditions
+* in forum settings.
+*
+* @param object $course Course
+* @param object $cm Course-module
+* @param int $userid User ID
+* @param bool $type Type of comparison (or/and; can be used as return value if no conditions)
+* @return bool True if completed, false if not, $type if conditions not set.
+*/
+function recit360tours_get_completion_state($course,$cm,$userid,$type) {
+   global $CFG,$DB,$USER;
+
+   // Get forum details
+   $recit360tours = $DB->get_record('recit360tours', array('id' => $cm->instance), '*', MUST_EXIST);
+
+   // If completion option is enabled, evaluate it and return true/false 
+   if($recit360tours->completionobjects) {
+        $ctrl = recit360tours\PersistCtrl::getInstance($DB, $USER);
+        return $ctrl->isTourCompleted($cm->instance, $userid);
+   } else {
+       // Completion option is not enabled so just return $type
+       return $type;
+   }
+}
+
+function recit360tours_check_completion($cmid, $userid){
+    global $CFG,$DB,$USER;
+
+    $cm = get_coursemodule_from_id('recit360tours', $cmid, 0, false, MUST_EXIST);
+    $tourid = $cm->instance;
+    $recit360tours = $DB->get_record('recit360tours', array('id' => $tourid), '*', MUST_EXIST);
+    $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+
+    $completion = new completion_info($course);
+    if($completion->is_enabled($cm) && $recit360tours->completionobjects) {
+        $ctrl = recit360tours\PersistCtrl::getInstance($DB, $USER);
+        if ($ctrl->isTourCompleted($tourid, $userid)){
+            $completion->update_state($cm, COMPLETION_COMPLETE);
+        }
+    }
 }
 
 function recit360tours_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {

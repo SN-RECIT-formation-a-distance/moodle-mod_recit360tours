@@ -4,7 +4,7 @@
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="mod_recit360tours" COMMENT="Main table for the Activity (course module)">
+    <TABLE NAME="recit360tours" COMMENT="Main table for the Activity (course module)">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
@@ -13,6 +13,7 @@
         <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="display" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="completionobjects" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -20,7 +21,7 @@
       </KEYS>
     </TABLE>
 
-    <TABLE NAME="mod_recit360tours_scenes" COMMENT="scenes">
+    <TABLE NAME="recit360tours_scenes" COMMENT="scenes">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="tourid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
@@ -28,31 +29,31 @@
         <FIELD NAME="image" TYPE="text" NOTNULL="true" />
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="creatorid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="completion" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="startscene" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="fkscene" TYPE="foreign" FIELDS="tourid" REFTABLE="mod_recit360tours" REFFIELDS ="id"/>
+        <KEY NAME="fkscene" TYPE="foreign" FIELDS="tourid" REFTABLE="recit360tours" REFFIELDS ="id"/>
       </KEYS>
     </TABLE>
 
-    <TABLE NAME="mod_recit360tours_objects" COMMENT="scene objects">
+    <TABLE NAME="recit360tours_objects" COMMENT="scene objects">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="sceneid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="type" TYPE="varchar" LENGTH="100" NOTNULL="true"/>
         <FIELD NAME="object" TYPE="text" NOTNULL="true" />
         <FIELD NAME="completion" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="fkscene" TYPE="foreign" FIELDS="sceneid" REFTABLE="mod_recit360tours_scenes" REFFIELDS ="id"/>
+        <KEY NAME="fkscene" TYPE="foreign" FIELDS="sceneid" REFTABLE="recit360tours_scenes" REFFIELDS ="id"/>
       </KEYS>
     </TABLE>
 
-    <TABLE NAME="mod_recit360tours_views" COMMENT="Save user last viewed scene">
+    <TABLE NAME="recit360tours_views" COMMENT="Save user last viewed scene">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="sceneid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="objectid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timeviewed" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
@@ -61,7 +62,6 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="uniquesceneview" UNIQUE="true" FIELDS="sceneid,userid"/>
         <INDEX NAME="uniqueobjectview" UNIQUE="true" FIELDS="objectid,userid"/>
       </INDEXES>
     </TABLE>

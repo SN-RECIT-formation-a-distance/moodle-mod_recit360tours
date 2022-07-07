@@ -26,6 +26,7 @@ export class AText {
     static Edit(el, attributes){
         if (attributes.position) el.object3D.position.set(attributes.position.x, attributes.position.y, attributes.position.z);
         if (attributes.rotation) el.setAttribute('rotation', {x:attributes.rotation.x, y:attributes.rotation.y, z:attributes.rotation.z});
+        if (attributes.completion) el.setAttribute('data-completion', attributes.completion);
         if (attributes.text) el.setAttribute('text', {value:attributes.text, color: attributes.color, align:'center', baseline: 'center'});
         if (attributes.backgroundColor) el.setAttribute('material', {color: attributes.backgroundColor, opacity: 0.7});
         if (attributes.key) el.setAttribute('data-key', attributes.key);
@@ -39,9 +40,7 @@ export class AImage {
     static Create(attributes, clickCb){
         
         let el1 = document.createElement('a-image');
-        attributes.noOpen = false;
         if (clickCb){
-            attributes.noOpen = true;
             el1.addEventListener("click", clickCb);
         }
         el1.classList.add('clickable');
@@ -56,6 +55,7 @@ export class AImage {
     static Edit(el, attributes){
         if (attributes.position) el.object3D.position.set(attributes.position.x, attributes.position.y, attributes.position.z);
         if (attributes.rotation) el.setAttribute('rotation', {x:attributes.rotation.x, y:attributes.rotation.y, z:attributes.rotation.z});
+        if (attributes.completion) el.setAttribute('data-completion', attributes.completion);
         if (attributes.fileUrl){
             if (!attributes.noOpen){
                 el.setAttribute('open-page-img', 'url:'+attributes.fileUrl+';event:click');
@@ -79,13 +79,15 @@ export class ASound {
 
         let el2 = document.createElement('a-image');
         el2.setAttribute('src', Assets.soundIcon);
-        el1.addEventListener('click', () => {
-            if (el1.components.sound.isPlaying){
-                el1.components.sound.stopSound();
-            }else{
-                el1.components.sound.playSound();
-            }
-        });
+        if (!attributes.noOpen) {
+            el1.addEventListener('click', () => {
+                if (el1.components.sound.isPlaying){
+                    el1.components.sound.stopSound();
+                }else{
+                    el1.components.sound.playSound();
+                }
+            });
+        }
         el2.setAttribute('scale', '0.3 0.3 0.3');
         el2.classList.add('clickable');
         el2.classList.add('draggable');
@@ -98,6 +100,7 @@ export class ASound {
     static Edit(el, attributes){
         if (attributes.position) el.object3D.position.set(attributes.position.x, attributes.position.y, attributes.position.z);
         if (attributes.rotation) el.setAttribute('rotation', {x:attributes.rotation.x, y:attributes.rotation.y, z:attributes.rotation.z});
+        if (attributes.completion) el.setAttribute('data-completion', attributes.completion);
         if (attributes.fileUrl){
             el.setAttribute('src', 'src: url('+attributes.fileUrl+')')
             el.setAttribute('filename', attributes.file)
@@ -120,10 +123,8 @@ export class AIframe {
     static Create(attributes, clickCb){
         
         let el1 = document.createElement('a-image');
-        attributes.noOpen = false;
         if (clickCb){
             el1.addEventListener("click", clickCb);
-            attributes.noOpen = true;
         }
         el1.classList.add('clickable');
         el1.classList.add('draggable');
@@ -136,6 +137,7 @@ export class AIframe {
     static Edit(el, attributes){
         if (attributes.position) el.object3D.position.set(attributes.position.x, attributes.position.y, attributes.position.z);
         if (attributes.rotation) el.setAttribute('rotation', {x:attributes.rotation.x, y:attributes.rotation.y, z:attributes.rotation.z});
+        if (attributes.completion) el.setAttribute('data-completion', attributes.completion);
         if (attributes.url){
             if (!attributes.noOpen){
                 el.setAttribute('open-page-iframe', 'url:'+AVideo.FormatURL(attributes.url)+';event:click')
@@ -180,6 +182,7 @@ export class AVideo {
         let vid = document.getElementById(attributes.key)
         if (attributes.position) el.object3D.position.set(attributes.position.x, attributes.position.y, attributes.position.z);
         if (attributes.rotation) el.setAttribute('rotation', {x:attributes.rotation.x, y:attributes.rotation.y, z:attributes.rotation.z});
+        if (attributes.completion) el.setAttribute('data-completion', attributes.completion);
         if (attributes.fileUrl){
             vid.setAttribute('src', attributes.fileUrl)
             el.setAttribute('src', '#'+attributes.key)
@@ -235,6 +238,7 @@ export class Navigation {
         }
         if (attributes.for) el.setAttribute('for', attributes.for);
         if (attributes.to) el.setAttribute('to', attributes.to);
+        if (attributes.completion) el.setAttribute('data-completion', attributes.completion);
         if (attributes.rotationstart) el.setAttribute('rotationstart', attributes.rotationstart);
         if (attributes.key) el.setAttribute('data-key', attributes.key);
         if (attributes.position) el.object3D.position.set(attributes.position.x, attributes.position.y, attributes.position.z);

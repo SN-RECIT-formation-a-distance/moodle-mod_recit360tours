@@ -78,7 +78,7 @@ class MainView
 
         $roles = Utils::getUserRoles($this->course->id, $this->user->id);
         $studentId = (in_array('ad', $roles) ? 0 : $this->user->id);
-        echo sprintf("<div id='mod_recit360tours' data-student-id='%ld' data-roles='%s'></div>", $studentId, implode(",", $roles));
+        echo sprintf("<div id='mod_recit360tours' data-student-id='%ld' data-tour-id='%ld' data-roles='%s'></div>", $studentId, $this->cm->instance, implode(",", $roles));
 
         echo $this->getEditorOption("recit_activity_editor", 1);
 

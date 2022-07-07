@@ -82,10 +82,11 @@ class WebApi extends recitcommon\MoodleApi
     public function getImage360FormKit($request){
         try{
             $cmId = intval($request['cmId']);
+            $tourId = intval($request['tourId']);
 
-            //$this->canUserAccess('a', $cmId);
+            $this->canUserAccess('s', $cmId);
            
-            $result = PersistCtrl::getInstance()->getImage360List($cmId);
+            $result = PersistCtrl::getInstance()->getSceneList($tourId);
             $this->prepareJson($result);
             return new WebApiResult(true, $result);
         }
@@ -94,12 +95,12 @@ class WebApi extends recitcommon\MoodleApi
         }
     }
 
-    public function getResourceFormKit($request){
+    public function getSceneFormKit($request){
         try{
             $resourceId = intval($request['resourceId']);
 
             //$this->canUserAccess('a', $cmId);          
-            $result = ($resourceId == 0 ? new Resource() : PersistCtrl::getInstance()->getResource($resourceId));
+            $result = ($resourceId == 0 ? new Scene() : PersistCtrl::getInstance()->getScene($resourceId));
             $this->prepareJson($result);
             return new WebApiResult(true, $result);
         }
@@ -108,12 +109,13 @@ class WebApi extends recitcommon\MoodleApi
         }     
     }
 
-    public function deleteResource($request){
+    public function deleteScene($request){
         try{
             $resourceId = intval($request['resourceId']);
+            $cmId = intval($request['cmId']);
 
-            //$this->canUserAccess('a', $cmId);          
-            $result = PersistCtrl::getInstance()->deleteResource($resourceId);
+            $this->canUserAccess('a', $cmId);          
+            $result = PersistCtrl::getInstance()->deleteScene($resourceId);
             $this->prepareJson($result);
             return new WebApiResult(true, $result);
         }
@@ -122,13 +124,13 @@ class WebApi extends recitcommon\MoodleApi
         }     
     }
 
-    public function saveResource($request){        
+    public function saveScene($request){
         try{            
             $data = json_decode(json_encode($request['data']), FALSE);
 
             $this->canUserAccess('a', $data->cmId);
 
-            $result = PersistCtrl::getInstance()->saveResource($data);
+            $result = PersistCtrl::getInstance()->saveScene($data);
             $this->prepareJson($result);
             return new WebApiResult(true, $result);
 		}
@@ -136,6 +138,69 @@ class WebApi extends recitcommon\MoodleApi
             return new WebApiResult(false, null, $ex->GetMessage());
         } 
     }
+
+    public function deleteObject($request){
+        try{
+            $objectId = intval($request['objectId']);
+            $cmId = intval($request['cmId']);
+
+            $this->canUserAccess('a', $cmId);          
+            $result = PersistCtrl::getInstance()->deleteObject($objectId);
+            $this->prepareJson($result);
+            return new WebApiResult(true, $result);
+        }
+        catch(Exception $ex){
+            return new WebApiResult(false, null, $ex->GetMessage());
+        }     
+    }
+
+    public function saveObjectView($request){
+        try{
+            $objectId = intval($request['objectId']);
+            $cmId = intval($request['cmId']);
+
+            $this->canUserAccess('a', $cmId);          
+            $result = PersistCtrl::getInstance()->saveObjectView($objectId, $this->signedUser->id);
+            recit360tours_check_completion($cmId, $this->signedUser->id);
+            $this->prepareJson($result);
+            return new WebApiResult(true, $result);
+        }
+        catch(Exception $ex){
+            return new WebApiResult(false, null, $ex->GetMessage());
+        }     
+    }
+
+    public function getLastViewedScene($request){
+        try{
+            $tourId = intval($request['tourId']);
+            $cmId = intval($request['cmId']);
+
+            $this->canUserAccess('s', $cmId);
+            $result = PersistCtrl::getInstance()->getLastViewedScene($tourId, $this->signedUser->id);
+            $this->prepareJson($result);
+            return new WebApiResult(true, $result);
+        }
+        catch(Exception $ex){
+            return new WebApiResult(false, null, $ex->GetMessage());
+        }     
+    }
+
+    public function saveObject($request){
+        try{            
+            $data = json_decode(json_encode($request['data']), FALSE);
+            $cmId = intval($request['cmId']);
+
+            $this->canUserAccess('a', $cmId);
+
+            $result = PersistCtrl::getInstance()->saveObject($data);
+            $this->prepareJson($result);
+            return new WebApiResult(true, $result);
+		}
+		catch(Exception $ex){
+            return new WebApiResult(false, null, $ex->GetMessage());
+        } 
+    }
+
 
     public function saveFile($request){
         try{            

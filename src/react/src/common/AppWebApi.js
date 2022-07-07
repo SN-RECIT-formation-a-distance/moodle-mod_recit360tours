@@ -1,4 +1,5 @@
 import {WebApi, JsNx} from '../libs/utils/Utils';
+import { $glVars } from './common';
 import { Options } from './Options';
 
 export class AppWebApi extends WebApi
@@ -27,29 +28,14 @@ export class AppWebApi extends WebApi
             }
         }
     }
-    
-    /*isEditingMode(onSuccess){
-        let data = {service: "isEditingMode"};
+
+    getImage360FormKit(cmId, tourId, onSuccess){
+        let data = {cmId: cmId, tourId: tourId, service: "getImage360FormKit"};
         this.post(this.gateway, data, onSuccess);
     }
 
-    getEnrolledUserList(cmId, onSuccess){
-        let data = {cmId: cmId, service: "getEnrolledUserList"};
-        this.post(this.gateway, data, onSuccess);
-    }
-
-    getPages(cmId, onSuccess){
-        let data = {cmId: cmId, service: "getPages"};
-        this.post(this.gateway, data, onSuccess);
-    }  
-    
-    getPageFormKit(cmId, pageId, onSuccess){
-        let data = {cmId: cmId, pageId: pageId, service: "getPageFormKit"};
-        this.post(this.gateway, data, onSuccess);
-    }*/
-
-    getImage360FormKit(cmId, onSuccess){
-        let data = {cmId: cmId, service: "getImage360FormKit"};
+    getLastViewedScene(tourId, onSuccess){
+        let data = {cmId: $glVars.urlParams.id, tourId: tourId, service: "getLastViewedScene"};
         this.post(this.gateway, data, onSuccess);
     }
 
@@ -58,17 +44,32 @@ export class AppWebApi extends WebApi
         this.post(this.gateway, data, onSuccess);
     }
 
-    getResourceFormKit(resourceId, onSuccess){
-        let data = {resourceId: resourceId, service: "getResourceFormKit"};
+    getSceneFormKit(resourceId, onSuccess){
+        let data = {resourceId: resourceId, service: "getSceneFormKit"};
         this.post(this.gateway, data, onSuccess);
     }
 
-    deleteResource(resourceId, onSuccess){
-        let data = {resourceId: resourceId, service: "deleteResource"};
+    deleteScene(resourceId, onSuccess){
+        let data = {resourceId: resourceId, cmId: $glVars.urlParams.id, service: "deleteScene"};
         this.post(this.gateway, data, onSuccess);
     }
 
-    saveResource(data, onSuccess){
+    deleteObject(objectId, onSuccess){
+        let data = {objectId: objectId, cmId: $glVars.urlParams.id, service: "deleteObject"};
+        this.post(this.gateway, data, onSuccess);
+    }
+
+    saveObjectView(objectId, onSuccess){
+        let data = {objectId: objectId, cmId: $glVars.urlParams.id, service: "saveObjectView"};
+        this.post(this.gateway, data, onSuccess);
+    }
+
+    saveObject(object, onSuccess){
+        let data = {data: object, cmId: $glVars.urlParams.id, service: "saveObject"};
+        this.post(this.gateway, data, onSuccess);
+    }
+
+    saveScene(data, onSuccess){
         let that = this;
         let onSuccessTmp = function(result){     
             onSuccess(result);
@@ -77,7 +78,7 @@ export class AppWebApi extends WebApi
             }
         };
 
-        let options = {data: data, service: "saveResource"};
+        let options = {data: data, service: "saveScene"};
         this.post(this.gateway, options, onSuccessTmp);
     }
 
@@ -90,74 +91,4 @@ export class AppWebApi extends WebApi
         let options = {data: data, service: "deleteFile"};
         this.post(this.gateway, options, onSuccess);
     }
-
-
-    /*savePageSetup(data, onSuccess){
-        let that = this;
-        let onSuccessTmp = function(result){     
-            onSuccess(result);
-            if(result.success){
-                that.notifyObservers('savePageSetup');
-            }
-        };
-
-        let options = {data: data, service: "savePageSetup"};
-        this.post(this.gateway, options, onSuccessTmp);
-    }
-
-    setDisplayType(cmId, value, onSuccess){
-        let options = {cmId: cmId, value: value, service: "setDisplayType"};
-        this.post(this.gateway, options, onSuccess);
-    }
-
-    switchPageSlot(cmId, from, to, onSuccess){
-        let options = {cmId: cmId, from: from, to: to, service: "switchPageSlot"};
-        this.post(this.gateway, options, onSuccess);
-    }
-
-    removePage(cmId, pageId, onSuccess){
-        let that = this;
-        let onSuccessTmp = function(result){     
-            onSuccess(result);
-            if(result.success){
-                that.notifyObservers('removePage');
-            }
-        };
-
-        let options = {cmId: cmId, pageId: pageId, service: "removePage"};
-        this.post(this.gateway, options, onSuccessTmp);
-    }
-
-    getPageNav(cmId, onSuccess){
-        let data = {cmId: cmId, service: "getPageNav"};
-        this.post(this.gateway, data, onSuccess);
-    }
-
-    getPagesEvaluation(cmId, userId, onSuccess){
-        let data = {cmId: cmId, userId: userId, service: "getPagesEvaluation"};
-        this.post(this.gateway, data, onSuccess);
-    }
-
-    getPageEvaluation(cmId, userId, pageId, onSuccess){
-        let data = {cmId: cmId, userId: userId, pageId: pageId, service: "getPageEvaluation"};
-        this.post(this.gateway, data, onSuccess);
-    }
-    
-    savePageEval(data, onSuccess){
-        let that = this;
-        let onSuccessTmp = function(result){     
-            onSuccess(result);
-            if(result.success){
-                that.notifyObservers('savePageEval');
-            }
-        };
-
-        let options = {data: data, service: "savePageEval"};
-        this.post(this.gateway, options, onSuccessTmp);
-    }
-
-    getPageContent(cmId, pageId, filtered, countViews, onSuccess){
-        let data = {cmId: cmId, pageId: pageId, filtered: filtered, countPageViews: countViews ? 1 : 0, service: "getPageContent"};
-        this.post(this.gateway, data, onSuccess);
-    }*/
 };

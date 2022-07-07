@@ -30,6 +30,7 @@ class App extends Component {
         $glVars.urlParams.id = parseInt($glVars.urlParams.id, 10) || 0;
         $glVars.urlParams.cmId = parseInt($glVars.urlParams.cmId, 10) || 0;
         $glVars.urlParams.userId = parseInt($glVars.urlParams.userId, 10) || 0;
+        $glVars.urlParams.tourId = parseInt(props.tourId, 10)
 
         let mode = (UtilsMoodle.checkRoles($glVars.signedUser.roles, UtilsMoodle.rolesL2) ? 't' : 's');
 
@@ -66,5 +67,5 @@ document.addEventListener('DOMContentLoaded', function(){
     const domContainer = document.getElementById('mod_recit360tours');
     const root = createRoot(domContainer);
     let signedUser = {userId: domContainer.getAttribute('data-student-id'), roles: domContainer.getAttribute('data-roles').split(",")};
-    root.render(<App signedUser={signedUser}/>);
+    root.render(<App signedUser={signedUser} tourId={domContainer.getAttribute('data-tour-id')}/>);
 }, false);
