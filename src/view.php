@@ -23,8 +23,6 @@
 namespace recit360tours;
 
 use moodle_url;
-use recitcommon\Utils;
-use context_course;
 
 require('../../config.php');
 require_once($CFG->dirroot . "/local/recitcommon/php/Utils.php");
@@ -68,26 +66,14 @@ class MainView
         $this->page->set_title($this->course->shortname.': '.$this->cm->name);
         $this->page->set_heading($this->course->fullname);
 
-        //$this->page->requires->js(new moodle_url('./vr/js/aframe-v1.3.0.min.js'), true);
         $this->page->requires->css(new moodle_url('./react/build/index.css'), true);
-        $this->page->requires->js(new moodle_url('./react/build/index.js?v='.rand()), true);
-        $this->page->requires->js(new moodle_url("{$this->cfg->wwwroot}/local/recitcommon/js/Components.js"), true);
+        $this->page->requires->js(new moodle_url('./react/build/index.js?v='.rand(1000,5000)), true);
 
         echo $this->output->header();    
         echo $this->output->heading(format_string($this->cm->name), 2);
 
-        $roles = Utils::getUserRoles($this->course->id, $this->user->id);
-        $studentId = (in_array('ad', $roles) ? 0 : $this->user->id);
-        echo sprintf("<div id='mod_recit360tours' data-student-id='%ld' data-tour-id='%ld' data-roles='%s'></div>", $studentId, $this->cm->instance, implode(",", $roles));
-
-        echo $this->getEditorOption("recit_activity_editor", 1);
+        echo sprintf("<div id='mod_recit360tours' data-tour-id='%ld'></div>", $this->cm->instance);
 
         echo $this->output->footer();
-    }
-
-    protected function getEditorOption($name, $index){
-        $context = context_course::instance($this->course->id);
-
-        return Utils::createEditorHtml(false, "{$name}_container_{$index}", "{$name}_{$index}", "", 15, $context, 0, 0);
     }
 }

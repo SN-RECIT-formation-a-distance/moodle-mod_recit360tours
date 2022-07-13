@@ -2,6 +2,7 @@
 namespace recit360tours;
 
 require_once "$CFG->dirroot/local/recitcommon/php/PersistCtrl.php";
+require_once "$CFG->dirroot/lib/completionlib.php";
 
 
 use recitcommon;
@@ -31,13 +32,12 @@ class PersistCtrl extends recitcommon\MoodlePersistCtrl
 
 
     public function getSceneList($tourId){
-
         $query = "select t1.id, t1.tourid as tourid, t1.name, t1.image, t1.startscene, t2.id as objectid, t2.object, t2.completion as objectcompletion, t3.id as cmid
                  from {$this->prefix}recit360tours_scenes t1
                  inner join {$this->prefix}course_modules t3 on instance = t1.tourid and module = (select id from {$this->prefix}modules where name = 'recit360tours')
                  left join {$this->prefix}recit360tours_objects t2 on t1.id = t2.sceneid
                 where t1.tourid = $tourId order by t1.startscene desc, t1.id";
-                
+        
         $result = $this->mysqlConn->execSQLAndGetObjects($query);
 
         $list = array();
@@ -165,13 +165,14 @@ class PersistCtrl extends recitcommon\MoodlePersistCtrl
 
     public function saveObjectView($objectId, $userId){
         global $DB;
+        
         $timeViewed = time();
+        
         $DB->execute("insert into {recit360tours_views} (objectid, userid, timeviewed)
         values($objectId, $userId, $timeViewed)
         ON DUPLICATE KEY UPDATE timeviewed = '$timeViewed'");
-        $result = new stdClass();
-        //$result->completed = $this->isTourCompleted($tourId, $userId);
-        return $result;
+
+        return true;
     }
 
     public function getLastViewedScene($tourId, $userId){
@@ -182,10 +183,25 @@ class PersistCtrl extends recitcommon\MoodlePersistCtrl
                 where t1.tourid = $tourId and t2.type = 'navigation' and t3.userid = $userId order by t3.timeviewed desc limit 1";
                 
         $result = $this->mysqlConn->execSQLAndGetObject($query);
-        if ($result){
-            return $result;
+        
+        return $result;
+    }
+
+    public function check_activity_completion($cmid, $userid){
+        global $DB;
+    
+        $cm = get_coursemodule_from_id('recit360tours', $cmid, 0, false, MUST_EXIST);
+        $tourid = $cm->instance;
+
+        $recit360tours = $DB->get_record('recit360tours', array('id' => $tourid), '*', MUST_EXIST);
+        $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+    
+        $completion = new \completion_info($course);
+        if($completion->is_enabled($cm) && $recit360tours->completionobjects) {
+            if ($this->isTourCompleted($tourid, $userid)){                
+                $completion->update_state($cm, COMPLETION_COMPLETE);
+            }
         }
-        return array();
     }
 
     public function isTourCompleted($tourId, $userId){

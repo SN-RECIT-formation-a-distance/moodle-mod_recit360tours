@@ -27,8 +27,6 @@ defined('MOODLE_INTERNAL') || die;
 require_once($CFG->libdir.'/gradelib.php');
 require_once(dirname(__FILE__) . "/classes/PersistCtrl.php");
 
-use recit360tours\PersistCtrl;
-
 /**
  * List of features supported in recit360tours module
  * @param string $feature FEATURE_xx constant for requested feature
@@ -195,22 +193,13 @@ function recit360tours_get_completion_state($course,$cm,$userid,$type) {
    }
 }
 
+/*
 function recit360tours_check_completion($cmid, $userid){
-    global $CFG,$DB,$USER;
+    global $DB,$USER;
 
-    $cm = get_coursemodule_from_id('recit360tours', $cmid, 0, false, MUST_EXIST);
-    $tourid = $cm->instance;
-    $recit360tours = $DB->get_record('recit360tours', array('id' => $tourid), '*', MUST_EXIST);
-    $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-
-    $completion = new completion_info($course);
-    if($completion->is_enabled($cm) && $recit360tours->completionobjects) {
-        $ctrl = recit360tours\PersistCtrl::getInstance($DB, $USER);
-        if ($ctrl->isTourCompleted($tourid, $userid)){
-            $completion->update_state($cm, COMPLETION_COMPLETE);
-        }
-    }
-}
+    $ctrl = recit360tours\PersistCtrl::getInstance($DB, $USER);
+    $ctrl->check_activity_completion($cmid, $userid);
+}*/
 
 function recit360tours_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
     global $DB;

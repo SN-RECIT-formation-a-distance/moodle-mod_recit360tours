@@ -29,13 +29,13 @@ export class AppWebApi extends WebApi
         }
     }
 
-    getImage360FormKit(cmId, tourId, onSuccess){
-        let data = {cmId: cmId, tourId: tourId, service: "getImage360FormKit"};
+    get360Tour(tourId, onSuccess){
+        let data = {tourId: tourId, service: "get360Tour"};
         this.post(this.gateway, data, onSuccess);
     }
 
-    getLastViewedScene(tourId, onSuccess){
-        let data = {cmId: $glVars.urlParams.id, tourId: tourId, service: "getLastViewedScene"};
+    getImage360FormKit(tourId, onSuccess){
+        let data = {tourId: tourId, service: "getImage360FormKit"};
         this.post(this.gateway, data, onSuccess);
     }
 
@@ -59,13 +59,13 @@ export class AppWebApi extends WebApi
         this.post(this.gateway, data, onSuccess);
     }
 
-    saveObjectView(objectId, onSuccess){
-        let data = {objectId: objectId, cmId: $glVars.urlParams.id, service: "saveObjectView"};
+    saveObjectView(objectId, cmId, onSuccess){
+        let data = {objectId: objectId, cmId: cmId, service: "saveObjectView"};
         this.post(this.gateway, data, onSuccess);
     }
 
     saveObject(object, onSuccess){
-        let data = {data: object, cmId: $glVars.urlParams.id, service: "saveObject"};
+        let data = {data: object, service: "saveObject"};
         this.post(this.gateway, data, onSuccess);
     }
 

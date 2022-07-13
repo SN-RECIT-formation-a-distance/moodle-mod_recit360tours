@@ -1,25 +1,14 @@
 import React, { Component } from 'react';
 import {ButtonToolbar, ButtonGroup, Button, Form, Col, Alert } from 'react-bootstrap';
-import {faArrowLeft, faLocationArrow, faPencilAlt, faParagraph, faPlus, faTrashAlt, faArrowsAlt, faTv, faEye, faAngleRight, faGripVertical, faPen, faImage, faMusic, faVideo, faExternalLinkAlt, faMapMarker} from '@fortawesome/free-solid-svg-icons';
+import {faArrowLeft, faPencilAlt, faParagraph, faPlus, faTrashAlt, faArrowsAlt, faImage, faMusic, faExternalLinkAlt, faMapMarker} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {ComboBox, FeedbackCtrl, ToggleButtons, Modal, BtnUpload, DataGrid} from '../libs/components/Components';
+import {ToggleButtons, Modal, BtnUpload, DataGrid} from '../libs/components/Components';
 import {ComboBoxPlus} from '../libs/components/ComboBoxPlus';
-import {JsNx} from '../libs/utils/Utils';
 import {$glVars} from '../common/common';
 
 import 'aframe';
 import 'aframe-gui';
-import 'aframe-drag-controls';
 import { aframeComponentFactory, AIframe, AImage, ASound, AText, AVideo, Navigation, Panorama } from '../libs/components/aframe-components';
-import { Assets } from '../common/assets';
-require ("../libs/a-frame/primitives/a-hotspot");
-require ("../libs/a-frame/components/hotspot");
-require ("../libs/a-frame/components/iframe");
-require ("../libs/a-frame/primitives/a-panorama");
-require ("../libs/a-frame/components/panorama");
-require ("../libs/a-frame/primitives/a-tour");
-require ("../libs/a-frame/components/tour");
-//require ("../libs/a-frame/components/positionspherical");
 
 export class ViewImage360 extends Component{
     static defaultProps = {
@@ -28,16 +17,42 @@ export class ViewImage360 extends Component{
     constructor(props){
         super(props);
 
-        this.state = {cmId: $glVars.urlParams.id, data: null, init: false, sceneRef: null};
-        this.init = this.init.bind(this)
+        this.onSaveObjectViewResult = this.onSaveObjectViewResult.bind(this);
+
+        this.state = {data: null, loaded: false};
+
+        this.sceneRef = null;
     }
 
     componentDidMount(){
-        this.getData();             
+        this.getData(); 
+    }
+
+    componentDidUpdate(prevProps, prevState){
+        if(this.state.loaded){ return; }
+
+        if(this.sceneRef === null){
+            this.sceneRef = document.getElementById("image360");
+        }
+
+        if(this.sceneRef === null){ return;}
+        if(this.state.data === null){ return;}
+
+        for (let sc of this.state.data.sceneList){
+            this.createSceneFromObjects(sc);
+        }
+
+        if(this.sceneRef.components){
+            if(this.sceneRef.components.tour){
+                this.sceneRef.components.tour.init();
+            }
+        }
+
+        this.setState({loaded: true})
     }
 
     getData(){
-        $glVars.webApi.getImage360FormKit($glVars.urlParams.id, $glVars.urlParams.tourId, this.getDataResult.bind(this));        
+        $glVars.webApi.get360Tour($glVars.urlParams.tourId, this.getDataResult.bind(this));        
     }
 
     getDataResult(result){         
@@ -50,82 +65,54 @@ export class ViewImage360 extends Component{
     }
 
     render(){
-        if(!this.state.data){ return null; }
+        if(this.state.data === null){ return null; }
 
-        this.init();
-
-        let main = <div style={{height:'600px'}}>
-            <a-scene embedded cursor="rayOrigin: mouse" raycaster="objects: .clickable,[gui-interactable]">
-                <a-assets>
-                </a-assets>
-                <a-tour id="image360">
-                    <a-entity laser-controls raycaster="objects: .clickable,[gui-interactable]; far: 5">
-                        <a-camera wasd-controls-enabled="false"></a-camera>
-                    </a-entity>
-                </a-tour>
-            </a-scene></div>;
+        let main = 
+            <div style={{height:'600px'}}>
+                <a-scene embedded cursor="rayOrigin: mouse" raycaster="objects: .clickable,[gui-interactable]">
+                    <a-assets>
+                    </a-assets>
+                    <a-tour id="image360">
+                        <a-entity laser-controls raycaster="objects: .clickable,[gui-interactable]; far: 5">
+                            <a-camera wasd-controls-enabled="false"></a-camera>
+                        </a-entity>
+                    </a-tour>
+                </a-scene>
+            </div>;
 
         return main;
     }
 
-    init(){
-        if(this.state.init){ return; }
-
-        if(this.state.sceneRef === null){ 
-            this.state.sceneRef = document.getElementById("image360");
-            setTimeout(this.init, 300);
-            return;
-        }
-
-        this.state.init = true;
-        let start = false;
-        for (let sc of this.state.data){
-            this.createSceneFromObjects(sc, this.state.sceneRef);
-            if (sc.startscene) start = true;
-        }
-        
-        if (!start){
-            alert('Pas de scene de départ selectionné')
-        }
-
-        $glVars.webApi.getLastViewedScene($glVars.urlParams.tourId, (result) => {
-            if (result.data && result.data.objectid){
-                for (let sc of this.state.data){
-                    if (sc.objects.children){
-                        for (let obj of sc.objects.children){
-                            if (obj.id == result.data.objectid){
-                                let hotspot = document.querySelector('[data-key="'+obj.key+'"]');
-                                if (hotspot){
-                                    hotspot.click();
-                                }
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        })
-    }
-
-    createSceneFromObjects(sc, scene){
+    createSceneFromObjects(sc){
         let el2 = Panorama.Create({src: sc.objects.srcUrl, id: sc.elid})
-        scene.appendChild(el2);
-        this.editingPanorama = el2;
+        this.sceneRef.appendChild(el2);
+        
         if (sc.objects.children){
             for (let obj of sc.objects.children){
                 let el = aframeComponentFactory.CreateComponent(obj, (e) => this.onElementClick(obj, e));
+
                 el2.appendChild(el);
+
+                if(this.state.data.lastScene && this.state.data.lastScene.objectid){
+                    if (obj.id == this.state.data.lastScene.objectid){
+                        el.click();
+                    }
+                }
             }
         }
-        this.state.sceneRef.components.tour.init();
     }
 
-    onElementClick(obj, e){
+    onElementClick(obj){
         if (obj.completion){
-            $glVars.webApi.saveObjectView(obj.id, function(){})
+            $glVars.webApi.saveObjectView(obj.id, $glVars.urlParams.id, this.onSaveObjectViewResult);
         }
     }
 
+    onSaveObjectViewResult(result){         
+        if(!result.success){
+            $glVars.feedback.showError($glVars.i18n.tags.appname, result.msg);
+        }
+    }
 }
 
 class ObjectList extends Component{
@@ -224,7 +211,7 @@ export class ModalImage360Editor extends Component
     }
 
     getData(){
-        $glVars.webApi.getImage360FormKit($glVars.urlParams.tourId, $glVars.urlParams.tourId, this.getDataResult);        
+        $glVars.webApi.getImage360FormKit($glVars.urlParams.tourId, this.getDataResult);        
     }
 
     getDataResult(result){         
@@ -467,15 +454,21 @@ class ResourceForm extends Component
     addChildrenToScene(dataToAdd){
         let data = this.state.data;
 
-        if (typeof data.objects.children == 'undefined'){
+       /* if (typeof data.objects.children == 'undefined'){
             data.objects.children = [];
-        }
+        }*/
 
         let obj = this.createSceneObject(dataToAdd);
-        $glVars.webApi.saveObject(obj, (dataAdded) => {
-            obj.id = dataAdded.id;
+        let that = this;
+        $glVars.webApi.saveObject(obj, (result) => {
+            if(!result.success){
+                $glVars.feedback.showError($glVars.i18n.tags.appname, result.msg);
+                return;
+            }
+
+            obj.id = result.id;
             data.objects.children.push(obj);
-            this.setState({data:data});
+            that.setState({data:data});
         });
     }
 
@@ -488,7 +481,12 @@ class ResourceForm extends Component
                 }
 
                 let obj = this.createSceneObject(data.objects.children[i]);
-                $glVars.webApi.saveObject(obj, function(){});
+                $glVars.webApi.saveObject(obj, (result) => {
+                    if(!result.success){
+                        $glVars.feedback.showError($glVars.i18n.tags.appname, result.msg);
+                        return;
+                    }
+                });
                 break;
             }
         }
@@ -502,9 +500,19 @@ class ResourceForm extends Component
             if (data.objects.children[i].key == key){
                 if (data.objects.children[i].file){
                     data.objects.children[i].cmId = $glVars.urlParams.id;
-                    $glVars.webApi.deleteFile(data.objects.children[i], function(){});
+                    $glVars.webApi.deleteFile(data.objects.children[i], (result) => {
+                        if(!result.success){
+                            $glVars.feedback.showError($glVars.i18n.tags.appname, result.msg);
+                            return;
+                        }
+                    });
                 }
-                $glVars.webApi.deleteObject(data.objects.children[i].id, function(){});
+                $glVars.webApi.deleteObject(data.objects.children[i].id, (result) => {
+                    if(!result.success){
+                        $glVars.feedback.showError($glVars.i18n.tags.appname, result.msg);
+                        return;
+                    }
+                });
                 data.objects.children.splice(i, 1)
                 break;
             }
@@ -1230,7 +1238,6 @@ class ModalElementForm extends Component
         }
     }
 }
-
 
 class ModalRotationSelector extends Component
 {

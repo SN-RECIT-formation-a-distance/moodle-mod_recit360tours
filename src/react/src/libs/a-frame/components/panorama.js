@@ -19,13 +19,6 @@ AFRAME.registerComponent('panorama', {
 				this.sky.setAttribute('rotation', this.data.rotation);
 				this.el.appendChild(this.sky);
 				break;
-			default:
-				this.sky = document.createElement('a-sky');
-				this.sky.setAttribute('src', this.data.src);
-				this.sky.setAttribute('rotation', this.data.rotation);
-				this.el.appendChild(this.sky);
-				break;
-
 		}
 		this.onClick = this.onClick.bind(this);
 

@@ -38,6 +38,10 @@ class WebApi extends recitcommon\MoodleApi
         PersistCtrl::getInstance($DB, $USER);
     }
         
+    public function canUserAccess($level, $cmId = 0, $userId = 0, $courseId = 0){
+        return true;
+    }
+
     public function getCmList($request){        
         try{            
             $cmId = intval($request['cmId']);
@@ -79,13 +83,29 @@ class WebApi extends recitcommon\MoodleApi
         } 
     }
 
+    public function get360Tour($request){
+        try{
+            $tourId = intval($request['tourId']);
+            
+            $this->canUserAccess('s');
+
+            $result = new stdClass();
+            $result->sceneList = PersistCtrl::getInstance()->getSceneList($tourId);
+            $result->lastScene =  PersistCtrl::getInstance()->getLastViewedScene($tourId, $this->signedUser->id);
+            $this->prepareJson($result);
+            return new WebApiResult(true, $result);
+        }
+        catch(Exception $ex){
+            return new WebApiResult(false, null, $ex->GetMessage());
+        }
+    }
+
     public function getImage360FormKit($request){
         try{
-            $cmId = intval($request['cmId']);
             $tourId = intval($request['tourId']);
+            
+            $this->canUserAccess('s');
 
-            $this->canUserAccess('s', $cmId);
-           
             $result = PersistCtrl::getInstance()->getSceneList($tourId);
             $this->prepareJson($result);
             return new WebApiResult(true, $result);
@@ -159,26 +179,13 @@ class WebApi extends recitcommon\MoodleApi
             $objectId = intval($request['objectId']);
             $cmId = intval($request['cmId']);
 
-            $this->canUserAccess('a', $cmId);          
-            $result = PersistCtrl::getInstance()->saveObjectView($objectId, $this->signedUser->id);
-            recit360tours_check_completion($cmId, $this->signedUser->id);
-            $this->prepareJson($result);
-            return new WebApiResult(true, $result);
-        }
-        catch(Exception $ex){
-            return new WebApiResult(false, null, $ex->GetMessage());
-        }     
-    }
+            $this->canUserAccess('s');          
 
-    public function getLastViewedScene($request){
-        try{
-            $tourId = intval($request['tourId']);
-            $cmId = intval($request['cmId']);
-
-            $this->canUserAccess('s', $cmId);
-            $result = PersistCtrl::getInstance()->getLastViewedScene($tourId, $this->signedUser->id);
-            $this->prepareJson($result);
-            return new WebApiResult(true, $result);
+            PersistCtrl::getInstance()->saveObjectView($objectId, $this->signedUser->id);
+            
+            PersistCtrl::getInstance()->check_activity_completion($cmId, $this->signedUser->id);
+            
+            return new WebApiResult(true);
         }
         catch(Exception $ex){
             return new WebApiResult(false, null, $ex->GetMessage());
@@ -188,9 +195,8 @@ class WebApi extends recitcommon\MoodleApi
     public function saveObject($request){
         try{            
             $data = json_decode(json_encode($request['data']), FALSE);
-            $cmId = intval($request['cmId']);
 
-            $this->canUserAccess('a', $cmId);
+            $this->canUserAccess('a');
 
             $result = PersistCtrl::getInstance()->saveObject($data);
             $this->prepareJson($result);
@@ -200,7 +206,6 @@ class WebApi extends recitcommon\MoodleApi
             return new WebApiResult(false, null, $ex->GetMessage());
         } 
     }
-
 
     public function saveFile($request){
         try{            
@@ -231,199 +236,6 @@ class WebApi extends recitcommon\MoodleApi
             return new WebApiResult(false, null, $ex->GetMessage());
         } 
     }
-
-    /*public function getPages($request){
-        try{
-            $cmId = intval($request['cmId']);
-
-            $this->canUserAccess('a', $cmId);
-
-            $result = new stdClass();
-            $result->data = PersistCtrl::getInstance()->getPages($cmId, 0, array('name', 'displayType', 'timeModified'));
-            $this->prepareJson($result);
-            return new WebApiResult(true, $result->data);
-        }
-        catch(Exception $ex){
-            return new WebApiResult(false, null, $ex->GetMessage());
-        }     
-    }
-
-    public function getPageFormKit($request){
-        try{
-            $cmId = intval($request['cmId']);
-            $pageId = intval($request['pageId']);
-            $filtered = (isset($request['filtered']) && $request['filtered'] == 1);
-
-            $this->canUserAccess('a', $cmId);
-
-            $result = new stdClass();
-
-            if($pageId == 0){
-                list ($course, $cm) = get_course_and_cm_from_cmid($cmId, 'recit360tours');
-                $result->data = new ActivityPage();
-                $result->data->cmId = $cmId;
-                $result->data->courseId = $course->id;
-                $result->data->raId = $cm->instance;
-            }
-            else{
-                $result->data = PersistCtrl::getInstance()->getPage($cmId, $pageId, array('name', 'displayType', 'content'), $filtered);
-            }
-            
-            $this->prepareJson($result);
-            return new WebApiResult(true, $result);
-        }
-        catch(Exception $ex){
-            return new WebApiResult(false, null, $ex->GetMessage());
-        }     
-    }
-
-   
-
-    public function savePageSetup($request){        
-        try{            
-            $data = json_decode(json_encode($request['data']), FALSE);
-
-            $this->canUserAccess('a', $data->cmId);
-
-            $result = PersistCtrl::getInstance()->savePageSetup($data);
-            $this->prepareJson($result);
-            return new WebApiResult(true, $result);
-		}
-		catch(Exception $ex){
-            return new WebApiResult(false, null, $ex->GetMessage());
-        } 
-    }
-
-    public function setDisplayType($request){
-        try{            
-            $cmId = intval($request['cmId']);
-            $value = intval($request['value']);
-            
-            $this->canUserAccess('a', $cmId);
-
-            PersistCtrl::getInstance()->setDisplayType($cmId, $value);
-            return new WebApiResult(true, $value);
-		}
-		catch(Exception $ex){
-            return new WebApiResult(false, null, $ex->GetMessage());
-        } 
-    }
-
-    public function removePage($request){        
-        try{            
-            $cmId = intval($request['cmId']);
-            $pageId = intval($request['pageId']);
-
-            $this->canUserAccess('a', $cmId);
-
-            PersistCtrl::getInstance()->removePage($pageId);
-            return new WebApiResult(true);
-		}
-		catch(Exception $ex){
-            return new WebApiResult(false, null, $ex->GetMessage());
-        } 
-    }
-
-    public function getPagesEvaluation($request){        
-        try{            
-            $cmId = intval($request['cmId']);
-            $userId = intval($request['userId']);
-
-            $this->canUserAccess('s', $cmId, $userId);
-
-            $result = PersistCtrl::getInstance()->getPagesEvaluation($cmId, $userId, 0, array('name', 'nbViews', 'userId', 'grade', 'timeFirstView', 'timeLastView'));
-            $this->prepareJson($result);
-            return new WebApiResult(true, $result);
-		}
-		catch(Exception $ex){
-            return new WebApiResult(false, null, $ex->GetMessage());
-        } 
-    }
-
-    public function getPageEvaluation($request){        
-        try{            
-            $cmId = intval($request['cmId']);
-            $pageId = intval($request['pageId']);
-            $userId = intval($request['userId']);
-
-            $this->canUserAccess('a', $cmId);
-
-            $result = PersistCtrl::getInstance()->getPageEvaluation($cmId, $userId, $pageId, array('name', 'userId', 'grade'));
-            $this->prepareJson($result);
-            return new WebApiResult(true, $result);
-		}
-		catch(Exception $ex){
-            return new WebApiResult(false, null, $ex->GetMessage());
-        } 
-    }
-
-    public function savePageEval($request){        
-        try{            
-            $data = json_decode(json_encode($request['data']), FALSE);
-
-            $this->canUserAccess('a', $data->cmId);
-
-            PersistCtrl::getInstance()->savePageEval($data);
-            
-            return new WebApiResult(true);
-		}
-		catch(Exception $ex){
-            return new WebApiResult(false, null, $ex->GetMessage());
-        } 
-    }
-
-    public function getPageNav($request){        
-        try{            
-            $cmId = intval($request['cmId']);
-
-            $this->canUserAccess('s', $cmId, $this->signedUser->id);
-
-            $result = PersistCtrl::getInstance()->getPages($cmId, 0, array('name', 'displayType'));
-            $this->prepareJson($result);
-            return new WebApiResult(true, $result);
-		}
-		catch(Exception $ex){
-            return new WebApiResult(false, null, $ex->GetMessage());
-        } 
-    }
-
-    public function getPageContent($request){        
-        try{            
-            $cmId = intval($request['cmId']);
-            $pageId = intval($request['pageId']);
-            $countPageViews = intval($request['countPageViews']);
-
-            $this->canUserAccess('s', $cmId, $this->signedUser->id);
-
-            $result = PersistCtrl::getInstance()->getPage($cmId, $pageId, array('content', 'displayType'));
-            $this->prepareJson($result);
-
-            if ($countPageViews == 1){
-                PersistCtrl::getInstance()->setPageView($result->pageId, $this->signedUser->id);
-            }
-
-            return new WebApiResult(true, $result);
-		}
-		catch(Exception $ex){
-            return new WebApiResult(false, null, $ex->GetMessage());
-        } 
-    }
-
-    public function switchPageSlot($request){
-        try{
-            $cmId = intval($request['cmId']);
-
-            $this->canUserAccess('a', $cmId);
-
-            $from = intval($request['from']);
-            $to = intval($request['to']);
-            PersistCtrl::getInstance()->switchPageSlot($from, $to);
-            return new WebApiResult(true);
-        }
-        catch(Exception $ex){
-            return new WebApiResult(false, null, $ex->GetMessage());
-        }     
-    }*/
 }
 
 ///////////////////////////////////////////////////////////////////////////////////

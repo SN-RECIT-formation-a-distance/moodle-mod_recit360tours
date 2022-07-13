@@ -1,3 +1,11 @@
+require ("../a-frame/primitives/a-hotspot");
+require ("../a-frame/components/hotspot");
+require ("../a-frame/components/iframe");
+require ("../a-frame/primitives/a-panorama");
+require ("../a-frame/components/panorama");
+require ("../a-frame/primitives/a-tour");
+require ("../a-frame/components/tour");
+
 import { Assets } from "../../common/assets";
 
 export class Panorama {
