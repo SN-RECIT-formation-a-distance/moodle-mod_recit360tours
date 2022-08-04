@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {ButtonToolbar, ButtonGroup, Button, Form, Col, Alert } from 'react-bootstrap';
-import {faArrowLeft, faPencilAlt, faParagraph, faPlus, faTrashAlt, faArrowsAlt, faImage, faMusic, faExternalLinkAlt, faMapMarker} from '@fortawesome/free-solid-svg-icons';
+import {faArrowLeft, faPencilAlt, faParagraph, faPlus, faTrashAlt, faArrowsAlt, faImage, faMusic, faExternalLinkAlt, faMapMarker, faMapMarked, faSave, faTimes} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {ToggleButtons, Modal, BtnUpload, DataGrid} from '../libs/components/Components';
 import {ComboBoxPlus} from '../libs/components/ComboBoxPlus';
@@ -67,18 +67,25 @@ export class ViewImage360 extends Component{
     render(){
         if(this.state.data === null){ return null; }
 
-        let main = 
-            <div style={{height:'600px'}}>
-                <a-scene embedded cursor="rayOrigin: mouse" raycaster="objects: .clickable,[gui-interactable]">
-                    <a-assets>
-                    </a-assets>
-                    <a-tour id="image360">
-                        <a-entity laser-controls raycaster="objects: .clickable,[gui-interactable]; far: 5">
-                            <a-camera wasd-controls-enabled="false"></a-camera>
-                        </a-entity>
-                    </a-tour>
-                </a-scene>
-            </div>;
+        let main = null;
+
+        if(this.state.data.sceneList.length === 0){
+            main =  <div className='alert alert-warning h3'>Aucune scène n'a été créée. Commencez par activer le mode édition et ajoutez une scène.</div>;
+        }
+        else{
+            main = 
+                <div style={{height:'600px'}}>
+                    <a-scene embedded cursor="rayOrigin: mouse" raycaster="objects: .clickable,[gui-interactable]">
+                        <a-assets>
+                        </a-assets>
+                        <a-tour id="image360">
+                            <a-entity laser-controls raycaster="objects: .clickable,[gui-interactable]; far: 5">
+                                <a-camera wasd-controls-enabled="false"></a-camera>
+                            </a-entity>
+                        </a-tour>
+                    </a-scene>
+                </div>
+        }
 
         return main;
     }
@@ -141,8 +148,8 @@ class ObjectList extends Component{
                                                 <DataGrid.Body.Cell>{item.type} {item.name ? ' ('+item.name+')' : ''}</DataGrid.Body.Cell>
                                                 <DataGrid.Body.Cell style={{textAlign: 'center'}}>
                                                     <ButtonGroup size="sm">
-                                                        <Button onClick={() => this.props.onEdit(item.type, document.querySelector('[data-key='+item.key+']'))} title="Modifier" variant="primary"><FontAwesomeIcon icon={faPencilAlt}/></Button>
-                                                        <Button onClick={() => this.props.onDelete(document.querySelector('[data-key='+item.key+']'))} title="Supprimer" variant="danger"><FontAwesomeIcon icon={faTrashAlt}/></Button>
+                                                        <Button onClick={() => this.props.onEdit(item.type, document.querySelector('[data-key='+item.key+']'))} title="Modifier" variant="outline-primary"><FontAwesomeIcon icon={faPencilAlt}/></Button>
+                                                        <Button onClick={() => this.props.onDelete(document.querySelector('[data-key='+item.key+']'))} title="Supprimer" variant="outline-primary"><FontAwesomeIcon icon={faTrashAlt}/></Button>
                                                     </ButtonGroup>
                                                 </DataGrid.Body.Cell>
                                             </DataGrid.Body.Row>
@@ -229,20 +236,21 @@ export class ModalImage360Editor extends Component
         let main =
                 (this.state.resourceId === -1 ?
                     <div>
-                        <ButtonGroup>
-                            <Button onClick={this.onAdd}><FontAwesomeIcon icon={faPlus}/>{" Ajouter une scène"}</Button>
-                        </ButtonGroup>
-                        <hr/>
-                        <span className='h3 bold'>{"Scènes disponibles"}</span>
+                        <span className='h3 bold d-flex align-items-center'>{"Ajouter une scène"}<Button className='rounded-circle ml-2' variant='outline-primary' onClick={this.onAdd}><FontAwesomeIcon icon={faPlus}/></Button></span>
                         <div className='d-flex'>
                             {this.state.dataProvider.map((item, index) => {
                                 let ret = 
-                                    <div key={index} className='m-3' style={{textAlign: "center", position: 'relative'}}>
-                                        <img className='d-flex mb-3 rounded' style={{width: "200px", height: "200px"}} src={item.objects.srcUrl}/>
-                                        <span className='h5 bold'>{item.name}</span>
-                                        <div style={{position: 'absolute', top: 0, right: 0, backgroundColor: '#ffffff80', width: '100%', textAlign: 'right'}}>
-                                            <Button variant='link' onClick={() => this.onEdit(item.id)} title="Modifer la scène"><FontAwesomeIcon icon={faPencilAlt}/></Button>
-                                            <Button variant='link' onClick={() => this.onDelete(item.id)} title="Supprimer la scène"><FontAwesomeIcon icon={faTrashAlt}/></Button>
+                                    <div key={index} className='card m-3' style={{maxWidth: "200px"}}>
+                                        <img className='card-img-top' src={item.objects.srcUrl}/>
+                                        <div className="card-body">
+                                            <h5 className="card-title">{item.name}</h5>
+                                            <br/>
+                                            <div className='d-flex justify-content-center mt-3'>
+                                                <div className="btn-group" style={{position: "absolute", bottom: "1rem"}}>
+                                                    <Button className='rounded-circle ml-2' variant='outline-primary' onClick={() => this.onEdit(item.id)} title="Modifer la scène"><FontAwesomeIcon icon={faPencilAlt}/></Button>
+                                                    <Button className='rounded-circle ml-2' variant='outline-primary' onClick={() => this.onDelete(item.id)} title="Supprimer la scène"><FontAwesomeIcon icon={faTrashAlt}/></Button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 return (ret);                                    
@@ -377,15 +385,16 @@ class ResourceForm extends Component
             </div>;
 
         let footer = <ButtonGroup style={{display: "flex", justifyContent: "center"}}>
-                    <Button variant="secondary" onClick={this.onClose}>{"Annuler"}</Button>
-                    <Button variant="success" onClick={this.onSubmit}>{"Enregistrer"}</Button>
+                    <Button variant="secondary" onClick={this.onClose}><FontAwesomeIcon icon={faTimes}/>{" Annuler"}</Button>
+                    <Button variant="success" onClick={this.onSubmit}><FontAwesomeIcon icon={faSave}/>{" Enregistrer"}</Button>
                 </ButtonGroup>;
 
         let main =
                 <div>
-                    {this.state.popup && <Modal title={'Ressource Image 360'} body={body} footer={footer} onClose={() => this.setState({popup:false})} />}
+                    {this.state.popup && <Modal width='50%' title={'Ressource Image 360'} body={body} footer={footer} onClose={() => this.setState({popup:false})} />}
                     <div className="mb-4 d-flex align-items-center" >
                         <Button variant="outline-primary" className="rounded-circle mr-2" onClick={this.props.onClose} title="Revenir"><FontAwesomeIcon icon={faArrowLeft}/></Button>
+                        <br/>
                         <span className='m-0 h2'>Modification de la scène <u>{data.name}</u></span>
                         <Button variant="outline-primary" className="rounded-circle ml-2" onClick={() => this.setState({popup:true})} title="Modifier"><FontAwesomeIcon icon={faPencilAlt}/></Button>
                     </div>
@@ -585,7 +594,7 @@ class Image360Form extends Component{
                 <hr/> 
 
                 <ButtonToolbar className='mb-2'>
-                    <ButtonGroup>
+                    <ButtonGroup size='lg'>
                         <Button variant={(this.state.data.action.type === 'text' ? 'warning' : 'primary')} onClick={() => this.onAction('text', 1)} title="Texte"><FontAwesomeIcon icon={faParagraph}/></Button>  
                         <Button variant={(this.state.data.action.type === 'navigation' ? 'warning' : 'primary')} onClick={() => this.onAction('navigation', 1)} title="Lien vers une scène"><FontAwesomeIcon icon={faMapMarker}/></Button>
                         <Button variant={(this.state.data.action.type === 'image' ? 'warning' : 'primary')} onClick={() => this.onAction('image', 1)} title="Image"><FontAwesomeIcon icon={faImage}/></Button>
@@ -1024,9 +1033,9 @@ class ModalElementForm extends Component
         let footer = <div style={{width:'100%'}}>
             {this.state.data.elementId != 0 && <Button variant="danger" onClick={this.props.onDelete}><FontAwesomeIcon icon={faTrashAlt}/>{" Supprimer cet élément"}</Button>}
             {this.state.data.elementId != 0 && <Button variant="secondary" onClick={this.props.onMove}><FontAwesomeIcon icon={faArrowsAlt}/>{" Déplacer cet élément"}</Button>}
-            <ButtonGroup style={{display: "flex", width:'200px', float: "right"}}>
-                <Button variant="secondary" onClick={this.onClose}>{"Annuler"}</Button>
-                <Button variant="success" onClick={this.onSubmit} disabled={!this.state.changed}>{"Enregistrer"}</Button>
+            <ButtonGroup style={{display: "flex", float: "right"}}>
+                <Button variant="secondary" onClick={this.onClose}><FontAwesomeIcon icon={faTimes}/>{" Annuler"}</Button>
+                <Button variant="success" onClick={this.onSubmit} disabled={!this.state.changed}><FontAwesomeIcon icon={faSave}/>{" Enregistrer"}</Button>
             </ButtonGroup></div>;
 
         return this.state.selectRotationPopup ? <ModalRotationSelector data={this.state.data.res} onSave={(rot) => this.onSelectRotation(rot)} onClose={() => this.setState({selectRotationPopup: false})}/> : <Modal width="50%" title={this.state.data.elementId != 0 ? 'Modifier élément' : 'Créer élément'} body={body} footer={footer} onClose={this.onClose} />;
@@ -1069,19 +1078,29 @@ class ModalElementForm extends Component
                             }
         
                             let ret = 
-                                <div key={index} className='m-3 p-2' style={style}>
-                                    
-                                    <Button className='mt-2' variant='link' onClick={() => this.onSelectItem('res', index)}>
-                                        <img className='d-flex' style={{width: "200px", height: "200px"}} src={item.objects.srcUrl}/>
+                                <div key={index} className='m-2 p-1' style={style}>
+                                    <Button className='mt-2' variant='link' onClick={() => this.onSelectItem('res', index)} style={{maxWidth: "220px"}}>
+                                        <img className='d-flex' style={{maxWidth: "200px", maxHeight: "200px"}} src={item.objects.srcUrl}/>
                                         {item.name}
                                     </Button>
                                 </div>
                             return (ret);
                         })}
                     </div>
-                    <Button variant="secondary" onClick={() => this.onSelectRotation(false)} disabled={!this.state.data.res}>Selectionner rotation de départ</Button><br/>
-                    Rotation souhaité: {this.state.data.rotationstart ? this.state.data.rotationstart[0] + ', ' + this.state.data.rotationstart[1] + ', ' + this.state.data.rotationstart[2] : '0, 0, 0'}
+                    
+                    <div>
+                        <Button variant="primary" onClick={() => this.onSelectRotation(false)} disabled={!this.state.data.res}><FontAwesomeIcon icon={faMapMarked}/>{" Sélectionner rotation de départ"}</Button>
+
+                        {this.state.data.rotationstart &&
+                            <div className='alert alert-warning'>
+                                <strong>Rotation souhaité :</strong> {"(" + this.state.data.rotationstart[0].toFixed(2) + ', ' + this.state.data.rotationstart[1].toFixed(2) + ', ' + this.state.data.rotationstart[2].toFixed(2) + ")"}
+                            </div>
+                        }
+                    </div>
+                    
+                    <br/>
                 </div>;
+                
                 break;
             case 'iframe':
                 body = 
@@ -1263,9 +1282,9 @@ class ModalRotationSelector extends Component
         </div>
             
         let footer = <div style={{width:'100%'}}>
-            <ButtonGroup style={{display: "flex", width:'200px', float: "right"}}>
-                <Button variant="secondary" onClick={this.props.onClose}>{"Annuler"}</Button>
-                <Button variant="success" onClick={() =>this.onSave()}>{"Enregistrer"}</Button>
+            <ButtonGroup style={{display: "flex",  float: "right"}}>
+                <Button variant="secondary" onClick={this.props.onClose}><FontAwesomeIcon icon={faTimes}/>{" Annuler"}</Button>
+                <Button variant="success" onClick={() =>this.onSave()}><FontAwesomeIcon icon={faSave}/>{" Enregistrer"}</Button>
             </ButtonGroup></div>;
 
         return <Modal width="50%" title={'Selectionner la rotation de départ'} body={body} footer={footer} onClose={this.onClose} />;

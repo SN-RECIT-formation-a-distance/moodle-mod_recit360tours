@@ -67,7 +67,7 @@ class MainView
         $this->page->set_heading($this->course->fullname);
 
         $this->page->requires->css(new moodle_url('./react/build/index.css'), true);
-        $this->page->requires->js(new moodle_url('./react/build/index.js?v='.rand(1000,5000)), true);
+        $this->page->requires->js(new moodle_url('./react/build/index.js?v=a'.rand(700,900)), true);
 
         echo $this->output->header();    
         echo $this->output->heading(format_string($this->cm->name), 2);
