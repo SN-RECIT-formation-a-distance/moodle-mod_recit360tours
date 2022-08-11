@@ -39,7 +39,13 @@ export class AText {
         if (attributes.backgroundColor) el.setAttribute('material', {color: attributes.backgroundColor, opacity: 0.7});
         if (attributes.key) el.setAttribute('data-key', attributes.key);
         //el.setAttribute('geometry', {primitive:'plane', width: '2', height: '2'})
-        el.setAttribute('width', "2")
+        el.setAttribute('width', "2");
+
+        let height = 0.25;//Minimum height is 0.25, there are approx 90 chars per line so we calculate number of lines by 0.25 (height for one line)
+        height = height * (attributes.text.length / 90)
+        if (height < 0.25) height = 0.25;
+
+        el.setAttribute('height', height)
         el.setAttribute('scale', "0.5 0.5 0.5")
     }
 }
