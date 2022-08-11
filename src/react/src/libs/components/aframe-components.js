@@ -51,7 +51,7 @@ export class AText {
 }
 
 export class AImage {
-    static Create(attributes, clickCb){
+    static Create(attributes, clickCb, noOpen){
         
         let el1 = document.createElement('a-image');
         if (clickCb){
@@ -62,16 +62,16 @@ export class AImage {
         el1.setAttribute('src', Assets.imageIcon);
         el1.setAttribute('scale', "0.5 0.5 0.5")
 
-        AImage.Edit(el1, attributes)
+        AImage.Edit(el1, attributes, noOpen)
         return el1;
     }
 
-    static Edit(el, attributes){
+    static Edit(el, attributes, noOpen){
         if (attributes.position) el.object3D.position.set(attributes.position.x, attributes.position.y, attributes.position.z);
         if (attributes.rotation) el.setAttribute('rotation', {x:attributes.rotation.x, y:attributes.rotation.y, z:attributes.rotation.z});
         if (attributes.completion) el.setAttribute('data-completion', attributes.completion);
         if (attributes.fileUrl){
-            if (!attributes.noOpen){
+            if (!noOpen){
                 el.setAttribute('open-page-img', 'url:'+attributes.fileUrl+';event:click');
             }
             el.setAttribute('filename', attributes.file)
@@ -81,7 +81,7 @@ export class AImage {
 }
 
 export class ASound {
-    static Create(attributes, clickCb){
+    static Create(attributes, clickCb, noOpen){
         
         let el1 = document.createElement('a-sound');
         if (clickCb){
@@ -93,7 +93,7 @@ export class ASound {
 
         let el2 = document.createElement('a-image');
         el2.setAttribute('src', Assets.soundIcon);
-        if (!attributes.noOpen) {
+        if (!noOpen) {
             el1.addEventListener('click', () => {
                 if (el1.components.sound.isPlaying){
                     el1.components.sound.stopSound();
@@ -134,7 +134,7 @@ export class ASound {
 }
 
 export class AIframe {
-    static Create(attributes, clickCb){
+    static Create(attributes, clickCb, noOpen){
         
         let el1 = document.createElement('a-image');
         if (clickCb){
@@ -144,16 +144,16 @@ export class AIframe {
         el1.classList.add('draggable');
         el1.setAttribute('src', Assets.videoIcon)
 
-        AIframe.Edit(el1, attributes)
+        AIframe.Edit(el1, attributes, noOpen)
         return el1;
     }
 
-    static Edit(el, attributes){
+    static Edit(el, attributes, noOpen){
         if (attributes.position) el.object3D.position.set(attributes.position.x, attributes.position.y, attributes.position.z);
         if (attributes.rotation) el.setAttribute('rotation', {x:attributes.rotation.x, y:attributes.rotation.y, z:attributes.rotation.z});
         if (attributes.completion) el.setAttribute('data-completion', attributes.completion);
         if (attributes.url){
-            if (!attributes.noOpen){
+            if (!noOpen){
                 el.setAttribute('open-page-iframe', 'url:'+AVideo.FormatURL(attributes.url)+';event:click')
             }
             el.setAttribute('data-url', attributes.url)
@@ -261,7 +261,7 @@ export class Navigation {
 }
 
 export class aframeComponentFactory {
-    static CreateComponent(attributes, cb){
+    static CreateComponent(attributes, cb, noOpen){
         if (attributes.type == 'panorama'){
             return Panorama.Create(attributes, cb);
         }
@@ -272,16 +272,16 @@ export class aframeComponentFactory {
             return Navigation.Create(attributes, cb);
         }
         if (attributes.type == 'image'){
-            return AImage.Create(attributes, cb);
+            return AImage.Create(attributes, cb, noOpen);
         }
         if (attributes.type == 'sound'){
-            return ASound.Create(attributes, cb);
+            return ASound.Create(attributes, cb, noOpen);
         }
         if (attributes.type == 'video'){
             return AVideo.Create(attributes, cb);
         }
         if (attributes.type == 'iframe'){
-            return AIframe.Create(attributes, cb);
+            return AIframe.Create(attributes, cb, noOpen);
         }
     }
 }

@@ -137,11 +137,13 @@ class ObjectList extends Component{
                                 <DataGrid.Header.Row>
                                     <DataGrid.Header.Cell>{"#"}</DataGrid.Header.Cell>
                                     <DataGrid.Header.Cell >{"Type"}</DataGrid.Header.Cell>
-                                    <DataGrid.Header.Cell  style={{width: 80}}></DataGrid.Header.Cell>
+                                    <DataGrid.Header.Cell style={{width: 80}}></DataGrid.Header.Cell>
                                 </DataGrid.Header.Row>
                             </DataGrid.Header>
                             <DataGrid.Body>
                                 {this.props.objects.children.map((item, index) => {
+                                    if (item.object) item = item.object; //Newly added objects are encapsuled in object
+                         
                                         let row = 
                                             <DataGrid.Body.Row key={index}>
                                                 <DataGrid.Body.Cell>{item.key}</DataGrid.Body.Cell>
@@ -774,7 +776,7 @@ class Image360Form extends Component{
         if (data.type == 'iframe'){
             dataToEdit = {name: data.name, url: data.url, completion: data.completion};
             if(tmp.extra && tmp.extra.el){
-                AIframe.Edit(tmp.extra.el, dataToEdit);
+                AIframe.Edit(tmp.extra.el, dataToEdit, true);
             }
             if (data.res){
                 tmp.extra = dataToEdit;
@@ -787,7 +789,7 @@ class Image360Form extends Component{
                 dataToEdit.fileUrl = data.fileUrl;
             }
             if(tmp.extra && tmp.extra.el){
-                AImage.Edit(tmp.extra.el, dataToEdit);
+                AImage.Edit(tmp.extra.el, dataToEdit, true);
             }
             tmp.extra = dataToEdit;
         }
@@ -921,8 +923,7 @@ class Image360
 
         if (objects.children){
             for (let obj of objects.children){
-                obj.noOpen = true;
-                let el = aframeComponentFactory.CreateComponent(obj, (e) => this.onElementClick(obj.type, e));
+                let el = aframeComponentFactory.CreateComponent(obj, (e) => this.onElementClick(obj.type, e), true);
                 el2.appendChild(el);
             }
         }
@@ -960,7 +961,7 @@ class Image360
                 break;
             case 'image':
                 data = {type: 'image', file: this.state.data.extra.file, fileUrl: this.state.data.extra.fileUrl, ...commonData};
-                el1 = AImage.Create(data, (e) => this.onElementClick(data.type, e));
+                el1 = AImage.Create(data, (e) => this.onElementClick(data.type, e), true);
                 break;
             case 'sound':
                 data = {type: 'sound', file: this.state.data.extra.file, fileUrl: this.state.data.extra.fileUrl, loop: this.state.data.extra.loop, autoplay: this.state.data.extra.autoplay, ...commonData};
@@ -968,7 +969,7 @@ class Image360
                 break;
             case 'video':
                 data = {type: 'video', file: this.state.data.extra.file, fileUrl: this.state.data.extra.fileUrl, loop: this.state.data.extra.loop, autoplay: this.state.data.extra.autoplay, ...commonData};
-                el1 = AVideo.Create(data, (e) => this.onElementClick(data.type, e));
+                el1 = AVideo.Create(data, (e) => this.onElementClick(data.type, e), true);
                 break;
             default:
                 return;

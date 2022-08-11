@@ -50,6 +50,7 @@ AFRAME.registerComponent('open-page-iframe', {
         this.getSceneEl().exitVR();
         let modal = this.mountHTML();
         modal.focus();
+        document.body.style.overflow = 'hidden';
     },
     closeIframe() {
         this.clearGarbage();
@@ -59,6 +60,7 @@ AFRAME.registerComponent('open-page-iframe', {
         }
 
         this.getSceneEl().focus();
+        document.body.style.overflow = '';
     },
     get modalSelector() {
         return '#a_open_page_iframe';
@@ -138,6 +140,7 @@ AFRAME.registerComponent('open-page-img', {
         this.getSceneEl().exitVR();
         let modal = this.mountHTML();
         modal.focus();
+        document.body.style.overflow = 'hidden';
     },
     closeIframe() {
         this.clearGarbage();
@@ -147,6 +150,7 @@ AFRAME.registerComponent('open-page-img', {
         }
 
         this.getSceneEl().focus();
+        document.body.style.overflow = '';
     },
     get modalSelector() {
         return '#a_open_page_img';
