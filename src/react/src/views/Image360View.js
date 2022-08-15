@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {ToggleButtons, Modal, BtnUpload, DataGrid} from '../libs/components/Components';
 import {ComboBoxPlus} from '../libs/components/ComboBoxPlus';
 import {$glVars} from '../common/common';
-
+import { JsNx } from '../libs/utils/Utils';
 import 'aframe';
 import 'aframe-gui';
 import { aframeComponentFactory, AIframe, AImage, ASound, AText, AVideo, Navigation, Panorama } from '../libs/components/aframe-components';
@@ -17,11 +17,13 @@ export class ViewImage360 extends Component{
     constructor(props){
         super(props);
 
+        this.initScene = this.initScene.bind(this);
         this.onSaveObjectViewResult = this.onSaveObjectViewResult.bind(this);
 
-        this.state = {data: null, loaded: false};
+        this.state = {data: null, ready: false};
 
         this.sceneRef = null;
+        this.bufferCreation = [];
     }
 
     componentDidMount(){
@@ -29,26 +31,46 @@ export class ViewImage360 extends Component{
     }
 
     componentDidUpdate(prevProps, prevState){
-        if(this.state.loaded){ return; }
+        this.initScene();
+    }
+
+    initScene(){
+        if(this.state.ready){ return; }
 
         if(this.sceneRef === null){
             this.sceneRef = document.getElementById("image360");
         }
-
+        
         if(this.sceneRef === null){ return;}
         if(this.state.data === null){ return;}
-
-        for (let sc of this.state.data.sceneList){
+       
+        while(this.bufferCreation.length > 0){
+            let sc = this.bufferCreation.shift();
             this.createSceneFromObjects(sc);
         }
 
-        if(this.sceneRef.components){
-            if(this.sceneRef.components.tour){
-                this.sceneRef.components.tour.init();
-            }
+        if(this.bufferCreation.length > 0){
+            window.setTimeout(this.initScene, 100);
+            return;
+        }
+      
+        if(!this.sceneRef.components){
+            window.setTimeout(this.initScene, 100);
+            return;
         }
 
-        this.setState({loaded: true})
+        if(!this.sceneRef.components.tour){
+            window.setTimeout(this.initScene, 100);
+            return;
+        }
+
+        this.sceneRef.components.tour.init();
+
+        if(this.state.data.lastScene && this.state.data.lastScene.sceneid){
+            this.sceneRef.components.tour.loadSceneId(`pano${this.state.data.lastScene.sceneid}`);
+        }
+
+        this.setState({ready: true});
     }
 
     getData(){
@@ -57,6 +79,7 @@ export class ViewImage360 extends Component{
 
     getDataResult(result){         
         if(result.success){
+            this.bufferCreation = JsNx.copy(result.data.sceneList, 1);
             this.setState({data: result.data});
         }
         else{
@@ -99,12 +122,6 @@ export class ViewImage360 extends Component{
                 let el = aframeComponentFactory.CreateComponent(obj, (e) => this.onElementClick(obj, e));
 
                 el2.appendChild(el);
-
-                if(this.state.data.lastScene && this.state.data.lastScene.objectid){
-                    if (obj.id == this.state.data.lastScene.objectid){
-                        el.click();
-                    }
-                }
             }
         }
     }
@@ -1094,7 +1111,7 @@ class ModalElementForm extends Component
 
                         {this.state.data.rotationstart &&
                             <div className='alert alert-warning'>
-                                <strong>Rotation souhaité :</strong> {"(" + this.state.data.rotationstart[0].toFixed(2) + ', ' + this.state.data.rotationstart[1].toFixed(2) + ', ' + this.state.data.rotationstart[2].toFixed(2) + ")"}
+                                <strong>Rotation souhaité :</strong> {"(" + JsNx.toFixed(this.state.data.rotationstart[0], 2) + ', ' + JsNx.toFixed(this.state.data.rotationstart[1], 2) + ', ' + JsNx.toFixed(this.state.data.rotationstart[2], 2) + ")"}
                             </div>
                         }
                     </div>

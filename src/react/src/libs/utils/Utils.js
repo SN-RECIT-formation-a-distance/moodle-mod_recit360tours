@@ -165,6 +165,18 @@ export class JsNx{
                 return arr.slice(); // Array of literal-values (boolean, number, string) ex:  [true, 1, "true"]
         }
     };
+
+    static toFixed(value, fractionDigits){
+        if(!JsNx.isFloat(value)){
+            value = parseFloat(value);
+        }
+
+        return value.toFixed(fractionDigits);
+    }
+
+    static isFloat(n){
+        return Number(n) === n && n % 1 !== 0;
+    }
 }
 
 export default class Utils{
