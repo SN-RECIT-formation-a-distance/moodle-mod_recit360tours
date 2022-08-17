@@ -176,7 +176,7 @@ class PersistCtrl extends recitcommon\MoodlePersistCtrl
     }
 
     public function getLastViewedScene($tourId, $userId){
-        $query = "select t2.sceneid, t3.objectid
+        $query = "select t2.sceneid, t3.objectid, t2.type, t2.object
                  from {$this->prefix}recit360tours_scenes t1
                  left join {$this->prefix}recit360tours_objects t2 on t1.id = t2.sceneid
                  left join {$this->prefix}recit360tours_views t3 on t2.id = t3.objectid

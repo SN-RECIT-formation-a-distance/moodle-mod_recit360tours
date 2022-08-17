@@ -67,7 +67,15 @@ export class ViewImage360 extends Component{
         this.sceneRef.components.tour.init();
 
         if(this.state.data.lastScene && this.state.data.lastScene.sceneid){
-            this.sceneRef.components.tour.loadSceneId(`pano${this.state.data.lastScene.sceneid}`);
+            let scene = `pano${this.state.data.lastScene.sceneid}`;
+            let scenefrom = document.querySelectorAll('a-panorama')[0]?.id
+            if (this.state.data.lastScene.type == 'navigation'){
+                let obj = JSON.parse(this.state.data.lastScene.object);
+                if (obj){
+                    scene = obj.to;
+                }
+            }
+            this.sceneRef.components.tour.loadSceneId(scene, scenefrom);
         }
 
         this.setState({ready: true});
