@@ -17,11 +17,9 @@
 namespace recit360tours;
 
 require_once(dirname(__FILE__).'../../../../config.php');
-require_once "$CFG->dirroot/local/recitcommon/php/WebApi.php";
+require_once dirname(__FILE__)."/recitcommon/WebApi.php";
 require_once dirname(__FILE__) . "/PersistCtrl.php";
 
-use recitcommon;
-use recitcommon\WebApiResult;
 use stdClass;
 use Exception;
 
@@ -31,7 +29,7 @@ use Exception;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class WebApi extends recitcommon\MoodleApi
+class WebApi extends MoodleApi
 {
     public function __construct($DB, $COURSE, $USER){
         parent::__construct($DB, $COURSE, $USER);

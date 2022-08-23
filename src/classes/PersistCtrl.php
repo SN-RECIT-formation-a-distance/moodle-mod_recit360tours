@@ -1,7 +1,7 @@
 <?php
 namespace recit360tours;
 
-require_once "$CFG->dirroot/local/recitcommon/php/PersistCtrl.php";
+require_once dirname(__FILE__)."/recitcommon/PersistCtrl.php";
 require_once "$CFG->dirroot/lib/completionlib.php";
 
 
@@ -10,7 +10,7 @@ use stdClass;
 use Exception;
 use context_course;
 
-class PersistCtrl extends recitcommon\MoodlePersistCtrl
+class PersistCtrl extends MoodlePersistCtrl
 {
     protected static $instance = null;
 	
