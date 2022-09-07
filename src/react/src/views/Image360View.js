@@ -969,7 +969,7 @@ class Image360
         
         let el1 = null
         let data = null
-        let commonData = {position: {x: point.x, y: point.y, z: point.z}, rotation: {x: rot.x, y: rot.y, z: 0}, completion: this.state.data.extra.completion, key: 'element-'+Date.now()};
+        let commonData = {position: {x: point.x, y: point.y, z: point.z}, rotation: {x: rot.x, y: rot.y, z: rot.z}, completion: this.state.data.extra.completion, key: 'element-'+Date.now()};
 
         switch(this.state.data.action.type){
             case 'text':
@@ -1061,10 +1061,16 @@ class ModalElementForm extends Component
             {this.state.data.elementId != 0 && <Button variant="secondary" onClick={this.props.onMove}><FontAwesomeIcon icon={faArrowsAlt}/>{" Déplacer cet élément"}</Button>}
             <ButtonGroup style={{display: "flex", float: "right"}}>
                 <Button variant="secondary" onClick={this.onClose}><FontAwesomeIcon icon={faTimes}/>{" Annuler"}</Button>
-                <Button variant="success" onClick={this.onSubmit} disabled={!this.state.changed}><FontAwesomeIcon icon={faSave}/>{" Enregistrer"}</Button>
+                <Button variant="success" onClick={this.onSubmit} disabled={!this.checkValidity()}><FontAwesomeIcon icon={faSave}/>{" Enregistrer"}</Button>
             </ButtonGroup></div>;
 
         return this.state.selectRotationPopup ? <ModalRotationSelector data={this.state.data.res} onSave={(rot) => this.onSelectRotation(rot)} onClose={() => this.setState({selectRotationPopup: false})}/> : <Modal width="50%" title={this.state.data.elementId != 0 ? 'Modifier élément' : 'Créer élément'} body={body} footer={footer} onClose={this.onClose} />;
+    }
+
+    checkValidity(){
+        if (!this.state.changed) return false;
+        if (this.state.data.elementId == 0 && this.props.type == 'navigation' && !this.state.data.res) return false;
+        return true;
     }
     
     getBody(){

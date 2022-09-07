@@ -74,9 +74,9 @@ class PersistCtrl extends MoodlePersistCtrl
 
     public function deleteScene($sceneId){  
         global $DB;
+        $DB->execute("DELETE FROM {recit360tours_views} WHERE sceneid IN (SELECT id FROM {recit360tours_scenes} WHERE id=$sceneId)");
         $DB->delete_records('recit360tours_scenes', array('id'=>$sceneId));
         $DB->delete_records('recit360tours_objects', array('sceneid'=>$sceneId));
-        $DB->execute("DELETE FROM {recit360tours_views} WHERE sceneid IN (SELECT id FROM {recit360tours_scenes} WHERE id=$sceneId)");
         return true;
     }
 
