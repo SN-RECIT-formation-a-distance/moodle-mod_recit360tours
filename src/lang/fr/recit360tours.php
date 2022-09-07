@@ -1,6 +1,8 @@
 <?php
 $string['pluginname'] = 'Activité RÉCIT image 360';
 $string['userpreferences'] = "Préférences de l'utilisateur";
+$string['recit360tours:addinstance'] = "Ajouter une instance";
+$string['recit360tours:view'] = "Vue";
 $string['modulename'] = 'Activité RÉCIT image 360';
 $string['modulenameplural'] = "Activité RÉCIT image 360";
 $string['modulename_help'] = "Activité RÉCIT image 360";

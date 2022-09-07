@@ -1,6 +1,8 @@
 <?php
 $string['pluginname'] = 'RÉCIT 360 tour';
 $string['userpreferences'] = "User settings";
+$string['recit360tours:addinstance'] = "Add instance";
+$string['recit360tours:view'] = "View";
 $string['modulename'] = 'RÉCIT 360 tour';
 $string['modulenameplural'] = "RÉCIT 360 tour";
 $string['modulename_help'] = "RÉCIT 360 tour";
