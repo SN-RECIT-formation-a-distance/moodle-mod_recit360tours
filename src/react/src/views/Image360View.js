@@ -75,7 +75,10 @@ export class ViewImage360 extends Component{
                     scene = obj.to;
                 }
             }
-            this.sceneRef.components.tour.loadSceneId(scene, scenefrom);
+            
+            if (scene != scenefrom){
+                this.sceneRef.components.tour.loadSceneId(scene, scenefrom);
+            }
         }
 
         this.setState({ready: true});
