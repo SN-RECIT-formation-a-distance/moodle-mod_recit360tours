@@ -1,5 +1,6 @@
 <?php
 $string['pluginname'] = 'RÉCIT 360 tour';
+$string['privacy:metadata'] = 'This plugin does not store any personal data.';
 $string['userpreferences'] = "User settings";
 $string['recit360tours:addinstance'] = "Add instance";
 $string['recit360tours:view'] = "View";
