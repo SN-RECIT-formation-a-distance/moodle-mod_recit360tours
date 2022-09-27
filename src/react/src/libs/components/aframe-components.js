@@ -35,7 +35,7 @@ export class AText {
         if (attributes.position) el.object3D.position.set(attributes.position.x, attributes.position.y, attributes.position.z);
         if (attributes.rotation) el.setAttribute('rotation', {x:attributes.rotation.x, y:attributes.rotation.y, z:attributes.rotation.z});
         if (attributes.completion) el.setAttribute('data-completion', attributes.completion);
-        if (attributes.text) el.setAttribute('text', {value:attributes.text, color: attributes.color, align:'center', baseline: 'center'});
+        if (attributes.text) el.setAttribute('text', {value:attributes.text, color: attributes.color, align:'center', baseline: 'center', font: Assets.CustomFont, fontImage: Assets.CustomFontImage, negate: 'false'});
         if (attributes.backgroundColor) el.setAttribute('material', {color: attributes.backgroundColor, opacity: 0.7});
         if (attributes.key) el.setAttribute('data-key', attributes.key);
         //el.setAttribute('geometry', {primitive:'plane', width: '2', height: '2'})
