@@ -75,11 +75,13 @@ export class ViewImage360 extends Component{
                     if (obj){
                         scene = obj.to;
                     }
-                    let hotspot = document.querySelector('[data-key='+obj.id+']');
-                    if (hotspot){
-                        scene = null;
-                        hotspot.click()
-                    }
+                    try{
+                        let hotspot = document.querySelector('[data-key='+obj.id+']');
+                        if (hotspot){
+                            scene = null;
+                            hotspot.click()
+                        }
+                    }catch(e){}
                 }
                 
                 if (scene && scene != scenefrom){
