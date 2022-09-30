@@ -27,6 +27,7 @@ AFRAME.registerComponent('open-page-iframe', {
                 width: 90vw;
                 height: 70vh;
                 background-color: #fff;
+                z-index: 1222;
             }
             ${this.modalSelector}.page__modal .page__modal-header {
                 width: 100%;
@@ -63,7 +64,7 @@ AFRAME.registerComponent('open-page-iframe', {
         document.body.style.overflow = '';
     },
     get modalSelector() {
-        return '#a_open_page_iframe';
+        return '.a_open_page_iframe';
     },
     get modalStyleSelector() {
         return 'a_open_page_css';
@@ -74,7 +75,7 @@ AFRAME.registerComponent('open-page-iframe', {
     mountHTML() {
         this.clearGarbage();
 
-        let template = `<div id="a_open_page_iframe" class="page__modal">
+        let template = `<div class="a_open_page_iframe modal-backdrop fade show"> </div><div class="a_open_page_iframe page__modal">
         <div class="page__modal-header">
             <button class="btn vrclose">retour à la VR</button>
         </div>
@@ -82,7 +83,7 @@ AFRAME.registerComponent('open-page-iframe', {
         </div>`;
 
         document.body.insertAdjacentHTML('beforeend', template);
-        let modal = document.querySelector(this.modalSelector);
+        let modal = document.querySelector(this.modalSelector+'.page__modal');
         modal.querySelector('.vrclose').addEventListener('click', this.closeIframe.bind(this));
 
         return modal;
@@ -118,6 +119,7 @@ AFRAME.registerComponent('open-page-img', {
                 height: 70vh;
                 background-color: #fff;
                 padding: 10px;
+                z-index: 1222;
             }
             ${this.modalSelector}.page__modal .page__modal-header {
                 width: 100%;
@@ -153,7 +155,7 @@ AFRAME.registerComponent('open-page-img', {
         document.body.style.overflow = '';
     },
     get modalSelector() {
-        return '#a_open_page_img';
+        return '.a_open_page_img';
     },
     get modalStyleSelector() {
         return 'a_open_img_css';
@@ -164,7 +166,7 @@ AFRAME.registerComponent('open-page-img', {
     mountHTML() {
         this.clearGarbage();
 
-        let template = `<div id="a_open_page_img" class="page__modal">
+        let template = `<div class="a_open_page_img modal-backdrop fade show"> </div><div class="a_open_page_img page__modal">
         <div class="page__modal-header">
             <button class="btn vrclose">retour à la VR</button>
         </div>
@@ -172,7 +174,7 @@ AFRAME.registerComponent('open-page-img', {
         </div>`;
 
         document.body.insertAdjacentHTML('beforeend', template);
-        let modal = document.querySelector(this.modalSelector);
+        let modal = document.querySelector(this.modalSelector+'.page__modal');
         modal.querySelector('.vrclose').addEventListener('click', this.closeIframe.bind(this));
 
         return modal;
