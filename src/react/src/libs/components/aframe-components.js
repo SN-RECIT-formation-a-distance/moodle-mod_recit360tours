@@ -237,6 +237,7 @@ export class Navigation {
         el1.classList.add('clickable');
         el1.classList.add('draggable');
         el1.setAttribute('scale', '0.5 0.5 0.5');
+        el1.setAttribute('src', Assets.hotspotIcon);
         Navigation.Edit(el1, attributes)
         return el1;
     }
