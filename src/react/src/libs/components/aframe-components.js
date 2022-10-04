@@ -102,7 +102,7 @@ export class ASound {
                 }
             });
         }
-        el2.setAttribute('scale', '0.3 0.3 0.3');
+        el2.setAttribute('scale', '0.5 0.5 0.5');
         el2.classList.add('clickable');
         el2.classList.add('draggable');
         el1.appendChild(el2)

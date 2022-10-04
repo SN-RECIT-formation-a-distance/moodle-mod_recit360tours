@@ -121,10 +121,17 @@ export class ViewImage360 extends Component{
                     <a-scene embedded cursor="rayOrigin: mouse" raycaster="objects: .clickable,[gui-interactable]">
                         <a-assets>
                         </a-assets>
+                                
+                        <a-entity laser-controls="hand: right"
+                        raycaster="objects: .clickable,[gui-interactable]; far: 5; lineColor: red; lineOpacity: 0.5">
+
+                        </a-entity>
+                        <a-camera 
+                        wasd-controls-enabled="false"
+                        raycaster="objects: .clickable,[gui-interactable]"  
+                        cursor="rayOrigin:mouse">
+                        </a-camera>
                         <a-tour id="image360">
-                            <a-entity laser-controls raycaster="objects: .clickable,[gui-interactable]; far: 5">
-                                <a-camera wasd-controls-enabled="false"></a-camera>
-                            </a-entity>
                         </a-tour>
                     </a-scene>
                 </div>
