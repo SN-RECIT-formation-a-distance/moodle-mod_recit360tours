@@ -1,3 +1,5 @@
+import { Assets } from "../../../common/assets";
+
 AFRAME.registerComponent('hotspot', {
 	schema: {
 		for: { type: 'string' },
@@ -215,12 +217,14 @@ AFRAME.registerComponent('hover-text', {
 	  var el = this.el;
   
 	  el.addEventListener('mouseenter', function () {
-		let t = document.createElement('a-text')
-		t.setAttribute('value', data);
+		let t = document.createElement('a-entity');
+		t.classList.add('a-text')
+		t.setAttribute('text', {value:data, color: '#fff', align:'center', baseline: 'center', font: Assets.CustomFont, fontImage: Assets.CustomFontImage, negate: 'false'});
+		t.setAttribute('scale', '5 5 5')
 		el.appendChild(t)
 	  });
 	  el.addEventListener('mouseleave', function () {
-		let t = el.querySelector('a-text')
+		let t = el.querySelector('.a-text')
 		if (t) t.remove()
 	  });
 	}

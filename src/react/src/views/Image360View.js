@@ -124,13 +124,14 @@ export class ViewImage360 extends Component{
                                 
                         <a-entity laser-controls="hand: right"
                         raycaster="objects: .clickable,[gui-interactable]; far: 5; lineColor: red; lineOpacity: 0.5">
-
                         </a-entity>
+
                         <a-camera 
                         wasd-controls-enabled="false"
                         raycaster="objects: .clickable,[gui-interactable]"  
                         cursor="rayOrigin:mouse">
                         </a-camera>
+                        
                         <a-tour id="image360">
                         </a-tour>
                     </a-scene>
@@ -979,16 +980,11 @@ class Image360
 
         if (this.state.data.action.step != 2) return;
         let point = event.detail.intersection.point;
-        let helper = document.getElementById('rotationhelper');
         let campos = document.getElementById('acamera').getAttribute('position');
-        helper.object3D.position.set(point.x, point.y, point.z);
-        helper.object3D.lookAt(campos.x, campos.y, campos.z);
-
-        let rot = helper.getAttribute('rotation');
         
         let el1 = null
         let data = null
-        let commonData = {position: {x: point.x, y: point.y, z: point.z}, rotation: {x: rot.x, y: rot.y, z: rot.z}, completion: this.state.data.extra.completion, key: 'element-'+Date.now()};
+        let commonData = {position: {x: point.x, y: point.y, z: point.z}, rotation: {x: 0, y: 0, z: 0}, completion: this.state.data.extra.completion, key: 'element-'+Date.now()};
 
         switch(this.state.data.action.type){
             case 'text':
@@ -1018,8 +1014,11 @@ class Image360
             default:
                 return;
         }
-        this.callback(event, data);
         this.editingPanorama.appendChild(el1);
+        el1.object3D.lookAt(campos.x, campos.y, campos.z)
+        let rot = el1.getAttribute('rotation');
+        data.rotation = {x: rot.x, y: rot.y, z: rot.z};
+        this.callback(event, data);
     }
 }
 

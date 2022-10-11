@@ -68,13 +68,8 @@
   margin-right: -50%;
   transform: translate(-50%, -50%);
 }
-.page-table-of-contents {
-  min-height: 300px;
-  padding: 10px;
-}
-.page-table-of-contents .table-of-contents {
-  padding-left: 0;
-  padding-right: 0;
+.a-enter-ar-button, .a-enter-vr-button {
+  z-index: 999 !important;
 }
 
 /**********************************************************

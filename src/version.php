@@ -29,5 +29,5 @@ $plugin->dependencies = [
     'local_recitcommon' => 2021082000
 ];
 $plugin->release = 'v1.0.0-alpha'; 
-$plugin->supported = [39, 311];      //  Moodle 3.9.x, 3.10.x and 3.11.x are supported.
+$plugin->supported = [39, 400];      //  Moodle 3.9.x, 3.10.x and 3.11.x are supported.
 $plugin->maturity = MATURITY_ALPHA; // MATURITY_ALPHA, MATURITY_BETA, MATURITY_RC or MATURITY_STABLE
