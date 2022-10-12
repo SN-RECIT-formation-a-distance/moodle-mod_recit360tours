@@ -35,13 +35,7 @@ class custom_completion extends activity_custom_completion {
      */
     public function get_state(string $rule): int {
         global $DB, $USER, $CFG;
-        $ctrl = recit360tours\PersistCtrl::getInstance($DB, $USER);
-        // Get instance details.
-        $instance = instance::get_from_cmid($this->cm->id);
-
-        if (empty($instance)) {
-            throw new moodle_exception("Can't find instance {$this->cm->instance}");
-        }
+        $ctrl = \recit360tours\PersistCtrl::getInstance($DB, $USER); 
 
         // Default return value.
         $value = COMPLETION_INCOMPLETE;
