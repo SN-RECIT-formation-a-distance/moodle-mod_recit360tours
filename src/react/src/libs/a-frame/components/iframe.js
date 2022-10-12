@@ -78,7 +78,7 @@ AFRAME.registerComponent('open-page-iframe', {
 
         let template = `<div class="a_open_page_iframe modal-backdrop fade show"> </div><div class="a_open_page_iframe page__modal p-1 p-md-3">
         <div class="page__modal-header">
-            <button class="btn vrclose">retour à la VR</button>
+            <button class="btn btn-dark mb-2 vrclose">retour à la VR</button>
         </div>
         <iframe src="${this.data.url}" frameborder="0" frameborder="0"></iframe>
         </div>`;
@@ -176,7 +176,7 @@ AFRAME.registerComponent('open-page-img', {
         let template = `<div class="a_open_page_img modal-backdrop fade show"> </div>
         <div class="a_open_page_img page__modal p-1 p-md-4">
         <div class="page__modal-header">
-            <button class="btn vrclose">retour à la VR</button>
+            <button class="btn btn-dark mb-2 vrclose">retour à la VR</button>
         </div>
         <div class="mbody">
             <img src="${this.data.url}"/>
