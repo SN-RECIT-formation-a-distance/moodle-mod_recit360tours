@@ -980,7 +980,6 @@ class Image360
 
         if (this.state.data.action.step != 2) return;
         let point = event.detail.intersection.point;
-        let campos = document.getElementById('acamera').getAttribute('position');
         
         let el1 = null
         let data = null
@@ -1015,10 +1014,13 @@ class Image360
                 return;
         }
         this.editingPanorama.appendChild(el1);
-        el1.object3D.lookAt(campos.x, campos.y, campos.z)
-        let rot = el1.getAttribute('rotation');
-        data.rotation = {x: rot.x, y: rot.y, z: rot.z};
-        this.callback(event, data);
+        setTimeout(() => {
+            let campos = document.getElementById('acamera').getAttribute('position');
+            el1.object3D.lookAt(campos.x, campos.y, campos.z)
+            let rot = el1.getAttribute('rotation');
+            data.rotation = {x: rot.x, y: rot.y, z: rot.z};
+            this.callback(event, data);
+        }, 300) //Add a timer because the object needs to be added to the scene
     }
 }
 
