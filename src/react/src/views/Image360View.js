@@ -493,6 +493,10 @@ class ResourceForm extends Component
     }
 
     onSave(){
+        if (this.props.resourceId === 0 && !this.state.data.image){
+            alert('Veuillez specifier une image');
+            return;
+        }
         $glVars.webApi.saveScene(this.state.data, this.onSaveResult);
     }
 
