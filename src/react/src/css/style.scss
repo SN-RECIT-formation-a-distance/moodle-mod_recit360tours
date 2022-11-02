@@ -2,6 +2,10 @@
     z-index: 999!important;
 }
 
+.btn-group>.btn.active, .btn-group>.btn:active, .btn-group>.btn:focus {
+    z-index: 0;
+}
+
 /**********************************************************
 / tablets layout
 /*********************************************************/
