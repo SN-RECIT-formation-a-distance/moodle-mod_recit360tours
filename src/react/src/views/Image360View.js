@@ -74,14 +74,14 @@ export class ViewImage360 extends Component{
                     let obj = JSON.parse(this.state.data.lastScene.object);
                     if (obj){
                         scene = obj.to;
+                        try{
+                            let hotspot = document.querySelector('[data-key='+obj.id+']');
+                            if (hotspot){
+                                scene = null;
+                                hotspot.click()
+                            }
+                        }catch(e){}
                     }
-                    try{
-                        let hotspot = document.querySelector('[data-key='+obj.id+']');
-                        if (hotspot){
-                            scene = null;
-                            hotspot.click()
-                        }
-                    }catch(e){}
                 }
                 
                 if (scene && scene != scenefrom){
@@ -155,7 +155,7 @@ export class ViewImage360 extends Component{
     }
 
     onElementClick(obj){
-        if (obj.completion){
+        if (obj.completion || obj.type == 'navigation'){
             $glVars.webApi.saveObjectView(obj.id, $glVars.urlParams.id, this.onSaveObjectViewResult);
         }
     }
