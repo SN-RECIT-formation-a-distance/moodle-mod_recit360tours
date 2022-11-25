@@ -144,12 +144,30 @@ AFRAME.registerComponent('open-page-img', {
         return this.el.sceneEl;
     },
     openIframe() {
+        if (this.imageEl) return;
         this.usingVRMode = this.getSceneEl().is('vr-mode');
 
-        this.getSceneEl().exitVR();
-        let modal = this.mountHTML();
-        modal.focus();
-        document.body.style.overflow = 'hidden';
+        if (this.usingVRMode){
+            let el1 = document.createElement('a-image');
+            el1.addEventListener("click", () => {
+                el1.remove();
+                this.el.setAttribute('visible', 'true');
+                this.imageEl = null;
+            });
+            el1.classList.add('clickable');
+            el1.classList.add('draggable');
+            el1.setAttribute('src', this.data.url);
+            this.el.parentElement.appendChild(el1);
+            this.el.setAttribute('visible', 'false');
+            el1.setAttribute('position', this.el.getAttribute('position'));
+            el1.setAttribute('rotation', this.el.getAttribute('rotation'));
+            this.imageEl = el1;
+        }else{
+            this.getSceneEl().exitVR();
+            let modal = this.mountHTML();
+            modal.focus();
+            document.body.style.overflow = 'hidden';
+        }
     },
     closeIframe() {
         this.clearGarbage();
