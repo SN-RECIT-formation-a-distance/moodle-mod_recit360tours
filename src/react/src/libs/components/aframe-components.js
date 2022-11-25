@@ -154,7 +154,11 @@ export class AIframe {
         if (attributes.completion) el.setAttribute('data-completion', attributes.completion);
         if (attributes.url){
             if (!noOpen){
-                el.setAttribute('open-page-iframe', 'url:'+AVideo.FormatURL(attributes.url)+';event:click')
+                if (attributes.external){
+                    el.setAttribute('open-page-external', 'url:'+AVideo.FormatURL(attributes.url)+';event:click');
+                }else{
+                    el.setAttribute('open-page-iframe', 'url:'+AVideo.FormatURL(attributes.url)+';event:click');
+                }
             }
             el.setAttribute('data-url', attributes.url)
         }

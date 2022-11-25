@@ -90,6 +90,7 @@ AFRAME.registerComponent('open-page-iframe', {
         return modal;
     },
 });
+
 AFRAME.registerComponent('open-page-img', {
     schema: {
         event: { type: "string", default: "click" },
@@ -208,3 +209,24 @@ AFRAME.registerComponent('open-page-img', {
         return modal;
     },
 });
+
+
+
+AFRAME.registerComponent('open-page-external', {
+    schema: {
+        event: { type: "string", default: "click" },
+        url: { type: "string", default: "" }
+    },
+    init() {
+        let data = this.data;
+        let el = this.el;
+
+        if (data.event && data.url) {
+            el.addEventListener(data.event, this.open.bind(this));
+        }
+
+    },
+    open(){
+        window.open(this.data.url, '_blank').focus();
+    }
+})

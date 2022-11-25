@@ -676,6 +676,9 @@ class Image360Form extends Component{
             data.extra.loop = false;
             data.extra.autoplay = false;
         }
+        if (value == 'iframe'){
+            data.extra.external = false;
+        }
 
         this.setState({data: data});
     }
@@ -761,7 +764,7 @@ class Image360Form extends Component{
                 tmp.extra = {file: event.currentTarget.getAttribute('filename'), loop: event.currentTarget.getAttribute('loop') == 'true', autoplay: event.currentTarget.getAttribute('autoplay') == 'true', el: event.currentTarget};
             }
             if (type == 'iframe'){
-                tmp.extra = {url: event.currentTarget.getAttribute('data-url'), name: event.currentTarget.getAttribute('hover-text'), el: event.currentTarget};
+                tmp.extra = {url: event.currentTarget.getAttribute('data-url'), name: event.currentTarget.getAttribute('hover-text'), external: (event.currentTarget.getAttribute('open-page-external') ? true : false), el: event.currentTarget};
             }
 
             //Valid for all
@@ -823,7 +826,7 @@ class Image360Form extends Component{
             }
         }
         if (data.type == 'iframe'){
-            dataToEdit = {name: data.name, url: data.url, completion: data.completion};
+            dataToEdit = {name: data.name, url: data.url, completion: data.completion, external: data.external};
             if(tmp.extra && tmp.extra.el){
                 AIframe.Edit(tmp.extra.el, dataToEdit, true);
             }
@@ -999,7 +1002,7 @@ class Image360
                 el1 = Navigation.Create(data, (e) => this.onElementClick(data.type, e));
                 break;
             case 'iframe':
-                data = {type: 'iframe', name: this.state.data.extra.name, url: this.state.data.extra.url, ...commonData};
+                data = {type: 'iframe', name: this.state.data.extra.name, url: this.state.data.extra.url, external: this.state.data.extra.external, ...commonData};
                 el1 = AIframe.Create(data, (e) => this.onElementClick(data.type, e));
                 break;
             case 'image':
@@ -1180,6 +1183,16 @@ class ModalElementForm extends Component
                         <Form.Control type="text" required value={this.state.data.url} name="url" onChange={this.onDataChange}/>
                     </Form.Group>
                 </Form.Row>
+                    <Form.Row>
+                        <Form.Group as={Col}>
+                            <Form.Label>Ouvrir dans une nouvelle onglet</Form.Label>
+                            <ToggleButtons name="external" type="radio" defaultValue={[this.state.data.external]} onChange={this.onDataChange} 
+                                    options={[
+                                        {value: true, text:"Oui"},
+                                        {value: false, text:"Non"}
+                                    ]}/>
+                        </Form.Group>
+                    </Form.Row>
                 </div>;
                 break;
             case 'image':
