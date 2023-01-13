@@ -122,7 +122,10 @@ export class ViewImage360 extends Component{
                         <a-assets>
                         </a-assets>
                                 
-                        <a-entity laser-controls
+                        <a-entity laser-controls="hand: left" raycaster="objects: .clickable;"></a-entity>
+                        <a-entity laser-controls="hand: right" raycaster="objects: .clickable;"></a-entity>
+
+                        <a-entity 
                         raycaster="objects: .clickable,[gui-interactable]; far: 5; lineColor: red; lineOpacity: 0.5">
                         </a-entity>
 
