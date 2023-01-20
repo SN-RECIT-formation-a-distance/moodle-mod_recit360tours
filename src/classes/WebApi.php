@@ -89,7 +89,23 @@ class WebApi extends MoodleApi
 
             $result = new stdClass();
             $result->sceneList = PersistCtrl::getInstance()->getSceneList($tourId);
-            $result->lastScene =  PersistCtrl::getInstance()->getLastViewedScene($tourId, $this->signedUser->id);
+            $result->lastScene = PersistCtrl::getInstance()->getLastViewedScene($tourId, $this->signedUser->id);
+            $this->prepareJson($result);
+            return new WebApiResult(true, $result);
+        }
+        catch(Exception $ex){
+            return new WebApiResult(false, null, $ex->GetMessage());
+        }
+    }
+
+    public function getTourCompletion($request){
+        try{
+            $tourId = intval($request['tourId']);
+            
+            $this->canUserAccess('s');
+
+            $result = new stdClass();
+            $result->completion = PersistCtrl::getInstance()->getTourCompletion($tourId, $this->signedUser->id);
             $this->prepareJson($result);
             return new WebApiResult(true, $result);
         }

@@ -5,6 +5,7 @@ require ("../a-frame/primitives/a-panorama");
 require ("../a-frame/components/panorama");
 require ("../a-frame/primitives/a-tour");
 require ("../a-frame/components/tour");
+require ("../a-frame/components/circle-progress");
 
 import { Assets } from "../../common/assets";
 

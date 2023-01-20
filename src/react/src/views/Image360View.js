@@ -9,6 +9,7 @@ import { JsNx } from '../libs/utils/Utils';
 import 'aframe';
 import 'aframe-gui';
 import { aframeComponentFactory, AIframe, AImage, ASound, AText, AVideo, Navigation, Panorama } from '../libs/components/aframe-components';
+import { Assets } from '../common/assets';
 
 export class ViewImage360 extends Component{
     static defaultProps = {
@@ -89,6 +90,7 @@ export class ViewImage360 extends Component{
                 }
             }
         }
+        this.setProgress();
 
         this.setState({ready: true});
     }
@@ -122,7 +124,7 @@ export class ViewImage360 extends Component{
                         <a-assets>
                         </a-assets>
                                 
-                        <a-entity laser-controls="hand: left" raycaster="objects: .clickable;"></a-entity>
+                        <a-entity laser-controls="hand: left" id="lefthand" raycaster="objects: .clickable;"></a-entity>
                         <a-entity laser-controls="hand: right" raycaster="objects: .clickable;"></a-entity>
 
                         <a-entity 
@@ -130,11 +132,12 @@ export class ViewImage360 extends Component{
                         </a-entity>
 
                         <a-camera 
+                        id="camerarig" 
                         wasd-controls-enabled="false"
                         raycaster="objects: .clickable,[gui-interactable]"  
                         cursor="rayOrigin:mouse">
                         </a-camera>
-                        
+                        	
                         <a-tour id="image360">
                         </a-tour>
                     </a-scene>
@@ -157,6 +160,35 @@ export class ViewImage360 extends Component{
         }
     }
 
+    setProgress(){
+        $glVars.webApi.getTourCompletion($glVars.urlParams.tourId, (result) => {
+            let data = result.data
+            let el = document.getElementById('progress');
+            if (el) el.remove();
+            if (data.completion){
+                let percentage = data.completion.completed / data.completion.total;
+                if (data.completion.completed == 0 || isNaN(percentage)) percentage = 0;
+                if (percentage > 1) percentage = 1;
+                el = document.createElement('a-circle-progress');
+                el.setAttribute('height', '0.77');
+                el.setAttribute('font-size', '5');
+                el.setAttribute('loaded', percentage);
+                el.setAttribute('id', 'progress');
+                if (!this.sceneRef.sceneEl.is('vr-mode')){
+                    el.setAttribute('position', '3.5 1.2 -2');
+                    el.setAttribute('rotation', '0 -9 0');
+                    el.setAttribute('scale', '0.7 0.7 0.7');
+                    document.getElementById('camerarig').append(el);
+                }else{
+                    el.setAttribute('position', '0 0 0.3');
+                    el.setAttribute('scale', '0.5 0.5 0.5');
+                    document.getElementById('lefthand').append(el);
+                }
+            }
+        });
+        
+    }
+
     onElementClick(obj){
         if (obj.completion || obj.type == 'navigation'){
             $glVars.webApi.saveObjectView(obj.id, $glVars.urlParams.id, this.onSaveObjectViewResult);
@@ -167,6 +199,7 @@ export class ViewImage360 extends Component{
         if(!result.success){
             $glVars.feedback.showError($glVars.i18n.tags.appname, result.msg);
         }
+        this.setProgress();
     }
 }
 

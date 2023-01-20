@@ -206,8 +206,7 @@ class PersistCtrl extends MoodlePersistCtrl
         }
     }
 
-    public function isTourCompleted($tourId, $userId){
-                
+    public function getTourCompletion($tourId, $userId){
         $completed = $this->mysqlConn->execSQLAndGetObject("select COUNT(t3.objectid) as count
         from {$this->prefix}recit360tours_scenes t1
         left join {$this->prefix}recit360tours_objects t2 on t1.id = t2.sceneid
@@ -219,7 +218,16 @@ class PersistCtrl extends MoodlePersistCtrl
        left join {$this->prefix}recit360tours_objects t2 on t1.id = t2.sceneid
        where t1.tourid = $tourId and t2.completion = 1");
 
-        if (isset($completed->count) && isset($total->count) && $completed->count == $total->count){
+        if (isset($completed->count) && isset($total->count)){
+            return array('completed' => $completed->count, 'total' => $total->count);
+        }
+        return null;
+
+    }
+    public function isTourCompleted($tourId, $userId){
+        $completed = $this->getTourCompletion($tourId, $userId);
+
+        if (isset($completed['completed']) && $completed['completed'] == $completed['total']){
             return true;
         }
         return false;

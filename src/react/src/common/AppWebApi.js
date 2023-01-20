@@ -34,6 +34,11 @@ export class AppWebApi extends WebApi
         this.post(this.gateway, data, onSuccess);
     }
 
+    getTourCompletion(tourId, onSuccess){
+        let data = {tourId: tourId, service: "getTourCompletion"};
+        this.post(this.gateway, data, onSuccess);
+    }
+
     getImage360FormKit(tourId, onSuccess){
         let data = {tourId: tourId, service: "getImage360FormKit"};
         this.post(this.gateway, data, onSuccess);
