@@ -153,18 +153,22 @@ export class AIframe {
         if (attributes.position) el.object3D.position.set(attributes.position.x, attributes.position.y, attributes.position.z);
         if (attributes.rotation) el.setAttribute('rotation', {x:attributes.rotation.x, y:attributes.rotation.y, z:attributes.rotation.z});
         if (attributes.completion) el.setAttribute('data-completion', attributes.completion);
+        if (attributes.name){
+            el.setAttribute('hover-text', {value:attributes.name})
+        }
+        if (attributes.activity){
+            el.setAttribute('data-activity', attributes.activity)
+        }
         if (attributes.url){
             if (!noOpen){
                 if (attributes.external){
                     el.setAttribute('open-page-external', 'url:'+AVideo.FormatURL(attributes.url)+';event:click');
+                    el.setAttribute('hover-text', {value:'[En cliquant sur ce bouton, vous quitterez la VR]',size:'small'})
                 }else{
                     el.setAttribute('open-page-iframe', 'url:'+AVideo.FormatURL(attributes.url)+';event:click');
                 }
             }
             el.setAttribute('data-url', attributes.url)
-        }
-        if (attributes.name){
-            el.setAttribute('hover-text', attributes.name)
         }
         if (attributes.key) el.setAttribute('data-key', attributes.key);
     }
@@ -251,10 +255,7 @@ export class Navigation {
         if (attributes.type) el.setAttribute('type', attributes.type);
         if (attributes.name){
             el.setAttribute('hotname', attributes.name);
-            let btn = el.querySelector('a-gui-button');
-            if (btn){
-                btn.setAttribute('value', attributes.name);
-            }
+            el.setAttribute('hover-text', {value:attributes.name});
         }
         if (attributes.for) el.setAttribute('for', attributes.for);
         if (attributes.to) el.setAttribute('to', attributes.to);

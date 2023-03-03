@@ -60,10 +60,9 @@ AFRAME.registerComponent('circle-progress', {
         var el = this.el;
 
         if(this.textEntity){
-            console.log("has textEntity: "+this.textEntity);
 
             var oldEntity = this.textEntity;
-            oldEntity.parentNode.removeChild(oldEntity);
+            oldEntity.remove();
 
             this.setText(this.data.loaded);
             this.loaderRing.setAttribute('theta-length', `${data.loaded*-360}`);

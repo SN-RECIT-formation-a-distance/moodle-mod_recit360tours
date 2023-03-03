@@ -1,7 +1,10 @@
 .a-enter-ar-button, .a-enter-vr-button {
     z-index: 999!important;
 }
-
+html:not(.a-fullscreen) .a-enter-vr {
+    top: 45px !important;
+    bottom: unset !important;
+}
 .btn-group>.btn.active, .btn-group>.btn:active, .btn-group>.btn:focus {
     z-index: 0;
 }

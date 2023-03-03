@@ -37,7 +37,7 @@ AFRAME.registerComponent('open-page-iframe', {
             }
             ${this.modalSelector}.page__modal iframe {
                 width: 100%;
-                height: 97%;
+                height: 95%;
             }
             </style>`;
             document.body.insertAdjacentHTML('beforeend', template);
@@ -117,9 +117,6 @@ AFRAME.registerComponent('open-page-img', {
                 left: 50%;
                 top: 50%;
                 transform: translate(-50%, -50%);
-                width: 80%;
-                max-width: 1500px;
-                height: 90%;
                 background-color: #fff;
                 padding: 10px;
                 z-index: 1222;
@@ -130,12 +127,13 @@ AFRAME.registerComponent('open-page-img', {
                 flex-direction: row-reverse;
             }
             ${this.modalSelector}.page__modal img {
-                width: 100%;
                 height: auto;
+                max-height: 90vh;
+                max-width: 90vw;
             }
             ${this.modalSelector}.page__modal .mbody{
                 overflow-y:auto;
-                height:97%;
+                text-align: center;
             }
             </style>`;
             document.body.insertAdjacentHTML('beforeend', template);
@@ -220,13 +218,19 @@ AFRAME.registerComponent('open-page-external', {
     init() {
         let data = this.data;
         let el = this.el;
+        this.usingVRMode = this.el.sceneEl.is('vr-mode');
 
         if (data.event && data.url) {
             el.addEventListener(data.event, this.open.bind(this));
         }
 
+
     },
     open(){
-        window.open(this.data.url, '_blank').focus();
+        if (this.usingVRMode){
+            window.location.href = this.data.url;
+        }else{
+            window.open(this.data.url, '_blank');
+        }
     }
 })

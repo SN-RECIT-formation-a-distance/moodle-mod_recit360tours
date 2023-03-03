@@ -57,3 +57,15 @@ abstract class MoodlePersistCtrl extends APersistCtrl{
         }
     }
 }
+
+class Utils {
+    public static function getCmUrlFromCmName($cmName, $courseId, $modData = false){
+        if (!$modData) $modData = get_fast_modinfo($courseId);
+        
+        foreach ($modData->cms as $cm) {
+            if ($cmName == $cm->name){
+                return $cm->__get('url')->out();
+            }
+        }
+    }
+}

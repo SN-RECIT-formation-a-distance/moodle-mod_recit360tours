@@ -52,9 +52,15 @@ export class ComboBoxPlus extends Component {
         if (this.props.multiple){
             spreadAttr.isMulti = true;
         }
+        let val = '';
+        for (let o of this.props.options){
+            if (o.value == this.props.value){
+                val = o;
+            }
+        }
 
         let main = 
-            <Select {...spreadAttr} onChange={this.onChange} defaultValue={this.props.value} placeholder={this.props.placeholder}>
+            <Select {...spreadAttr} onChange={this.onChange} value={val} placeholder={this.props.placeholder}>
             </Select>;            
         return (main);
     }   
