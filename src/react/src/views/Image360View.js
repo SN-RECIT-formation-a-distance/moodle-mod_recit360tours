@@ -10,6 +10,13 @@ import 'aframe';
 import 'aframe-gui';
 import { aframeComponentFactory, AIframe, AImage, ASound, AText, AVideo, Navigation, Panorama } from '../libs/components/aframe-components';
 import { Assets } from '../common/assets';
+import {
+  CircularProgressbar,
+  CircularProgressbarWithChildren,
+  buildStyles
+} from "react-circular-progressbar";
+import "react-circular-progressbar/dist/styles.css";
+import RadialSeparators from '../libs/utils/Radial';
 
 export class ViewImage360 extends Component{
     static defaultProps = {
@@ -21,7 +28,7 @@ export class ViewImage360 extends Component{
         this.initScene = this.initScene.bind(this);
         this.onSaveObjectViewResult = this.onSaveObjectViewResult.bind(this);
 
-        this.state = {data: null, ready: false};
+        this.state = {data: null, ready: false, progress: {percentage: 0, total: 0, done:0}};
 
         this.sceneRef = null;
         this.bufferCreation = [];
@@ -115,10 +122,32 @@ export class ViewImage360 extends Component{
         let main = null;
 
         if(this.state.data.sceneList.length === 0){
-            main =  <div className='alert alert-warning h3'>Aucune scène n'a été créée. Commencez par activer le mode édition et ajoutez une scène.</div>;
+            main = <div className='alert alert-warning h3'>Aucune scène n'a été créée. Commencez par activer le mode édition et ajoutez une scène.</div>;
         }
         else{
-            main = 
+            main = <>
+                <div style={{position:'absolute',scale:'0.3', top:'175px', right:'-80px', zIndex: 999}}>
+                    <CircularProgressbarWithChildren
+                        background
+                        backgroundPadding={0}
+                        strokeWidth={10}
+                        value={this.state.progress.percentage*100} 
+                        styles={buildStyles({
+                        backgroundColor: "#fff",
+                        pathColor: "#f0ad4e"
+                        })}>
+                        <RadialSeparators
+                          count={this.state.progress.total}
+                          style={{
+                            background: "#fff",
+                            width: "5px",
+                            // This needs to be equal to props.strokeWidth
+                            height: `${10}%`
+                          }}
+                        />
+                        <p style={{fontSize:'60px',textAlign:'center'}}>{this.state.progress.done}/{this.state.progress.total} ✓</p>
+                        </CircularProgressbarWithChildren>
+                </div>
                 <div style={{height:'600px'}}>
                     <a-scene embedded cursor="rayOrigin: mouse" raycaster="objects: .clickable,[gui-interactable]">
                         <a-assets>
@@ -142,6 +171,7 @@ export class ViewImage360 extends Component{
                         </a-tour>
                     </a-scene>
                 </div>
+                </>
         }
 
         return main;
@@ -169,17 +199,18 @@ export class ViewImage360 extends Component{
                 let percentage = data.completion.completed / data.completion.total;
                 if (data.completion.completed == 0 || isNaN(percentage)) percentage = 0;
                 if (percentage > 1) percentage = 1;
-                el = document.createElement('a-circle-progress');
-                el.setAttribute('height', '0.77');
-                el.setAttribute('font-size', '5');
-                el.setAttribute('loaded', percentage);
-                el.setAttribute('id', 'progress');
+                this.setState({progress: {percentage:percentage, total: data.completion.total, done: data.completion.completed}})
                 if (!this.sceneRef.sceneEl.is('vr-mode')){
-                    el.setAttribute('position', '3.5 1.2 -2');
-                    el.setAttribute('rotation', '0 -9 0');
-                    el.setAttribute('scale', '0.7 0.7 0.7');
-                    document.getElementById('camerarig').append(el);
+                    //el.setAttribute('position', '0 1.2 -2');
+                    //el.setAttribute('rotation', '0 0 0');
+                    //el.setAttribute('scale', '0.7 0.7 0.7');
+                    //document.getElementById('lefthand').append(el);
                 }else{
+                    el = document.createElement('a-circle-progress');
+                    el.setAttribute('height', '0.77');
+                    el.setAttribute('font-size', '5');
+                    el.setAttribute('loaded', percentage);
+                el.setAttribute('id', 'progress');
                     el.setAttribute('position', '0 0 0.3');
                     el.setAttribute('scale', '0.5 0.5 0.5');
                     document.getElementById('lefthand').append(el);
@@ -800,7 +831,7 @@ class Image360Form extends Component{
                 tmp.extra = {file: event.currentTarget.getAttribute('filename'), loop: event.currentTarget.getAttribute('loop') == 'true', autoplay: event.currentTarget.getAttribute('autoplay') == 'true', el: event.currentTarget};
             }
             if (type == 'iframe'){
-                tmp.extra = {url: event.currentTarget.getAttribute('data-url'), name: event.currentTarget.getAttribute('hover-text'), external: (event.currentTarget.getAttribute('open-page-external') ? true : false), el: event.currentTarget};
+                tmp.extra = {url: event.currentTarget.getAttribute('data-url'), activity: event.currentTarget.getAttribute('data-activity'), name: event.currentTarget.getAttribute('hover-text')?.value, external: (event.currentTarget.getAttribute('open-page-external') ? true : false), el: event.currentTarget};
             }
 
             //Valid for all
@@ -862,7 +893,7 @@ class Image360Form extends Component{
             }
         }
         if (data.type == 'iframe'){
-            dataToEdit = {name: data.name, url: data.url, completion: data.completion, external: data.external};
+            dataToEdit = {name: data.name, url: data.url, activity: data.activity, completion: data.completion, external: data.external};
             if(tmp.extra && tmp.extra.el){
                 AIframe.Edit(tmp.extra.el, dataToEdit, true);
             }
@@ -1038,7 +1069,7 @@ class Image360
                 el1 = Navigation.Create(data, (e) => this.onElementClick(data.type, e));
                 break;
             case 'iframe':
-                data = {type: 'iframe', name: this.state.data.extra.name, url: this.state.data.extra.url, external: this.state.data.extra.external, ...commonData};
+                data = {type: 'iframe', name: this.state.data.extra.name, url: this.state.data.extra.url, activity: this.state.data.extra.activity, external: this.state.data.extra.external, ...commonData};
                 el1 = AIframe.Create(data, (e) => this.onElementClick(data.type, e));
                 break;
             case 'image':
@@ -1110,7 +1141,7 @@ class ModalElementForm extends Component
             let modnameToExclude = ['label']; //Exclude label because it's not an activity
             for (let e of result.data){
                 if (modnameToExclude.includes(e.modname)) continue;
-                list.push({value: e.url, label: e.name + " [" + e.modname + "]"});
+                list.push({value: e.name, label: e.name + " [" + e.modname + "]"});
             }
             this.setState({activityList: list});
         });
@@ -1210,13 +1241,13 @@ class ModalElementForm extends Component
                 <Form.Row>
                     <Form.Group as={Col}>
                         <Form.Label>Activité</Form.Label>
-                        <ComboBoxPlus options={this.state.activityList} name="activity" onChange={(e) => this.onDataChange(e)}/>
+                        <ComboBoxPlus options={this.state.activityList} value={this.state.data.activity} name="activity" onChange={(e) => this.onDataChange(e)}/>
                     </Form.Group>
                 </Form.Row>
                 <Form.Row>
                     <Form.Group as={Col}>
                         <Form.Label>URL</Form.Label>
-                        <Form.Control type="text" required value={this.state.data.url} name="url" onChange={this.onDataChange}/>
+                        <Form.Control type="text" required value={this.state.data.url} disabled={this.state.data.activity?.length > 0} name="url" onChange={this.onDataChange}/>
                     </Form.Group>
                 </Form.Row>
                     <Form.Row>
@@ -1283,8 +1314,9 @@ class ModalElementForm extends Component
             
         }
 
-        let appendToAll = 
-        <Form.Row key="2">
+        let appendToAll = <div key="3"></div>;
+        if (this.props.type != 'text'){
+        appendToAll = <Form.Row key="2">
             <Form.Group as={Col}>
                 <Form.Label>Completion</Form.Label>
                 <ToggleButtons name="completion" type="radio" defaultValue={[this.state.data.completion]} onChange={this.onDataChange} 
@@ -1294,6 +1326,7 @@ class ModalElementForm extends Component
                         ]}/>
             </Form.Group>
         </Form.Row>;
+        }
 
         return [<div key="1">{body}</div>,appendToAll];
     }
@@ -1311,7 +1344,7 @@ class ModalElementForm extends Component
         }
 
         if (event.target.name == 'activity'){
-            data.url = event.target.value;
+            data.url = '';
         }
         this.setState({data: data, changed: true})
     }

@@ -91,10 +91,12 @@ function recit360tours_delete_instance($id) {
         return true;
     }
 
-    $DB->execute("DELETE FROM {recit360tours_objects} WHERE sceneid IN (SELECT id FROM {recit360tours_scenes} WHERE tourid=$id)");
-    $DB->execute("DELETE FROM {recit360tours_views} WHERE sceneid IN (SELECT id FROM {recit360tours_scenes} WHERE tourid=$id)");
-    $DB->delete_records('recit360tours', array('id'=>$recit360tours->id));
-    $DB->delete_records('recit360tours_scenes', array('tourid'=>$recit360tours->id));
+    try {
+        $DB->execute("DELETE FROM {recit360tours_objects} WHERE sceneid IN (SELECT id FROM {recit360tours_scenes} WHERE tourid=$id)");
+        $DB->execute("DELETE FROM {recit360tours_views} WHERE sceneid IN (SELECT id FROM {recit360tours_scenes} WHERE tourid=$id)");
+        $DB->delete_records('recit360tours', array('id'=>$recit360tours->id));
+        $DB->delete_records('recit360tours_scenes', array('tourid'=>$recit360tours->id));
+    } catch(Exception $e){}
 
     return true;
 }

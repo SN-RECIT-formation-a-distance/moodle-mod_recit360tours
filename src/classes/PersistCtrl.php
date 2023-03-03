@@ -287,8 +287,10 @@ class Scene{
     public $id = 0;
     public $tourid = 0;
     public $cmId = 0;
+    public $courseId = 0;
     public $startscene = 0;
     public $name = '';
+    public $elid = '';
     public $objects = array('src' => null, 'children' => array());
 
     public function __construct($data = null){
@@ -301,6 +303,8 @@ class Scene{
             $this->startscene = $data->startscene;
             $context = \context_module::instance($this->cmId);
             $this->objects['srcUrl'] = \moodle_url::make_pluginfile_url($context->id, 'mod_recit360tours', 'resources', 0, '/', $data->image)->out();
+            list ($course, $cmo) = get_course_and_cm_from_cmId($this->cmId);
+            $this->courseId = $course->id;
         }
     }
     
@@ -314,6 +318,15 @@ class Scene{
             if (isset($obj->file)){
                 if (is_string($obj->file)){
                     $obj->fileUrl = \moodle_url::make_pluginfile_url($context->id, 'mod_recit360tours', 'resources', 0, '/', $obj->file)->out();
+                }
+            }
+
+            if ($obj->type == 'iframe'){
+                if (isset($obj->activity) && is_string($obj->activity) && strlen($obj->activity) > 0){
+                    $url = Utils::getCmUrlFromCmName($obj->activity, $this->courseId);
+                    if ($url){
+                        $obj->url = $url;
+                    }
                 }
             }
 

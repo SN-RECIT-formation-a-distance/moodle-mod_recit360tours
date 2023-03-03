@@ -35,7 +35,6 @@ AFRAME.registerComponent('hotspot', {
 			case "navigation":
 				this.ensure(this.el, "a-image", "a-image", {
 					'src': this.data.src,
-					'hover-text': this.data.hotname,
 					'class': 'clickable'
 				})
 				this.tour = document.querySelector('a-tour');
@@ -209,23 +208,50 @@ AFRAME.registerComponent('hotspot', {
 
 AFRAME.registerComponent('hover-text', {
 	schema: {
-	  value: {default: ''}
+	  value: {default: ''},
+	  size: {default: ''}
 	},
   
 	init: function () {
-	  var data = this.data;
+	  var that = this;
 	  var el = this.el;
   
 	  el.addEventListener('mouseenter', function () {
 		let t = document.createElement('a-entity');
 		t.classList.add('a-text')
-		t.setAttribute('text', {value:data, color: '#fff', align:'center', baseline: 'center', font: Assets.CustomFont, fontImage: Assets.CustomFontImage, negate: 'false'});
-		t.setAttribute('scale', '5 5 5')
+		t.setAttribute('text', {value: that.data.value, color: '#fff', align:'center', baseline: 'center', font: Assets.CustomFont, fontImage: Assets.CustomFontImage, negate: 'false'});
+		if (that.data.size == 'small'){
+			t.setAttribute('scale', '1.3 1.3 1.3');
+			t.setAttribute('position', '0 0.5 0');
+		}else{
+			t.setAttribute('scale', '5 5 5');
+		}
 		el.appendChild(t)
 	  });
 	  el.addEventListener('mouseleave', function () {
 		let t = el.querySelector('.a-text')
 		if (t) t.remove()
 	  });
+	},
+
+	update(oldData){
 	}
-  });
+});
+AFRAME.registerComponent('data-completion', {
+	schema: {
+	  value: {default: ''},
+	},
+  
+	init: function () {
+	  var el = this.el;
+	  
+	  if (this.data == 1){
+		let t = document.createElement('a-image');
+		t.setAttribute('scale', '0.3 0.36 0.3');
+		t.setAttribute('position', '0.4 0.4 0.1');
+		t.setAttribute('src', `${M.cfg.wwwroot}/mod/recit360tours/assets/images/checkmark.png`);
+		
+		el.appendChild(t);
+	  }
+	},
+});
