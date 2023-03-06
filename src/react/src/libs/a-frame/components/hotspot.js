@@ -219,7 +219,7 @@ AFRAME.registerComponent('hover-text', {
 	  el.addEventListener('mouseenter', function () {
 		let t = document.createElement('a-entity');
 		t.classList.add('a-text')
-		t.setAttribute('text', {value: that.data.value, color: '#fff', align:'center', baseline: 'center', font: Assets.CustomFont, fontImage: Assets.CustomFontImage, negate: 'false'});
+		t.setAttribute('text', {value: that.data.value, color: '#ffc8c8', align:'center', baseline: 'center', font: Assets.CustomFont, fontImage: Assets.CustomFontImage, negate: 'false'});
 		if (that.data.size == 'small'){
 			t.setAttribute('scale', '1.3 1.3 1.3');
 			t.setAttribute('position', '0 0.5 0');
@@ -244,14 +244,15 @@ AFRAME.registerComponent('data-completion', {
   
 	init: function () {
 	  var el = this.el;
-	  
-	  if (this.data == 1){
-		let t = document.createElement('a-image');
-		t.setAttribute('scale', '0.3 0.36 0.3');
-		t.setAttribute('position', '0.4 0.4 0.1');
-		t.setAttribute('src', `${M.cfg.wwwroot}/mod/recit360tours/assets/images/checkmark.png`);
+	  var img = el.querySelector('a-image');
+	  if (img){
+		var url = img.getAttribute('src');
 		
-		el.appendChild(t);
+		if (this.data == 1){
+			url = url.replace('.png', '2.png');
+			img.setAttribute('src', url);
+			
+		}
 	  }
 	},
 });
