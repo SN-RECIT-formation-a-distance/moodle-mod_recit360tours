@@ -142,6 +142,10 @@
 html:not(.a-fullscreen) .a-enter-vr {
   top: 45px !important;
   bottom: unset !important;
+  left: 5px;
+}
+html:not(.a-fullscreen) .a-enter-vr button {
+  right: unset !important;
 }
 
 .btn-group > .btn.active, .btn-group > .btn:active, .btn-group > .btn:focus {
