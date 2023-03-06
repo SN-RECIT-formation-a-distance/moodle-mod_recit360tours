@@ -39,7 +39,7 @@ class backup_recit360tours_activity_structure_step extends backup_activity_struc
         $recit360tours = new backup_nested_element('recit360tours', array('id'), array(
             'course', 'name', 'intro', 'introformat', 'display', 'timemodified', 'completionobjects'));
 
-        $recit360tours_scenes = new backup_nested_element('recit360tours_scenes', array('id'), array('tourid', 'name', 'image', 'timemodified', 'creatorid', 'startscene'));
+        $recit360tours_scenes = new backup_nested_element('recit360tours_scenes', array('id'), array('tourid', 'name', 'image', 'scene_key', 'timemodified', 'creatorid', 'startscene'));
 
         $recit360tours_objects = new backup_nested_element('recit360tours_objects', array('id'), array(
             'sceneid', 'type', 'object', 'completion'));

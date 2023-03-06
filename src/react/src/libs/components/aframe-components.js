@@ -95,9 +95,11 @@ export class ASound {
         let el2 = document.createElement('a-image');
         el2.setAttribute('src', Assets.soundIcon);
         if (!noOpen) {
-            el1.addEventListener('click', () => {
+            el1.addEventListener('click', (e) => {
+                if (el1.timeStamp && (e.timeStamp - el1.timeStamp) < 1000) return; //Needed because event is fired twice
+                el1.timeStamp = e.timeStamp;
                 if (el1.components.sound.isPlaying){
-                    el1.components.sound.stopSound();
+                    el1.components.sound.pauseSound();
                 }else{
                     el1.components.sound.playSound();
                 }

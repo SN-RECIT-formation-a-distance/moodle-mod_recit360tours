@@ -32,7 +32,7 @@ class PersistCtrl extends MoodlePersistCtrl
 
 
     public function getSceneList($tourId){
-        $query = "select t1.id, t1.tourid as tourid, t1.name, t1.image, t1.startscene, t2.id as objectid, t2.object, t2.completion as objectcompletion, t3.id as cmid
+        $query = "select t1.id, t1.tourid as tourid, t1.name, t1.image, t1.startscene, t2.id as objectid, t2.object, t2.completion as objectcompletion, t3.id as cmid, t1.scene_key
                  from {$this->prefix}recit360tours_scenes t1
                  inner join {$this->prefix}course_modules t3 on instance = t1.tourid and module = (select id from {$this->prefix}modules where name = 'recit360tours')
                  left join {$this->prefix}recit360tours_objects t2 on t1.id = t2.sceneid
@@ -53,7 +53,7 @@ class PersistCtrl extends MoodlePersistCtrl
 
     public function getScene($sceneId){
 
-        $query = "select t1.id, t1.tourid as tourid, t1.name, t1.image, t1.startscene, t2.id as objectid, t2.object, t2.completion as objectcompletion, t3.id as cmid
+        $query = "select t1.id, t1.tourid as tourid, t1.name, t1.image, t1.startscene, t2.id as objectid, t2.object, t2.completion as objectcompletion, t3.id as cmid, t1.scene_key
                  from {$this->prefix}recit360tours_scenes t1
                  left join {$this->prefix}recit360tours_objects t2 on t1.id = t2.sceneid
                  inner join {$this->prefix}course_modules t3 on instance = t1.tourid and module = (select id from {$this->prefix}modules where name = 'recit360tours')
@@ -88,8 +88,8 @@ class PersistCtrl extends MoodlePersistCtrl
            
             $data->timeModified = time();
              
-            $fields = array("tourid", "name", "timemodified", "creatorid", "startscene");
-            $values = array($data->tourId, $data->name, $data->timeModified, $this->signedUser->id, $data->startscene);
+            $fields = array("tourid", "name", "timemodified", "creatorid", "startscene", "scene_key");
+            $values = array($data->tourId, $data->name, $data->timeModified, $this->signedUser->id, $data->startscene, $data->key);
             
             if (isset($data->image->content)){
                 $filesave = $data->image;
@@ -290,13 +290,13 @@ class Scene{
     public $courseId = 0;
     public $startscene = 0;
     public $name = '';
-    public $elid = '';
+    public $key = '';
     public $objects = array('src' => null, 'children' => array());
 
     public function __construct($data = null){
         if ($data){
             $this->id = $data->id;
-            $this->elid = 'pano'.$data->id;
+            $this->key = $data->scene_key;
             $this->tourid = $data->tourid;
             $this->cmId = $data->cmid;
             $this->name = $data->name;

@@ -178,7 +178,7 @@ export class ViewImage360 extends Component{
     }
 
     createSceneFromObjects(sc){
-        let el2 = Panorama.Create({src: sc.objects.srcUrl, id: sc.elid})
+        let el2 = Panorama.Create({src: sc.objects.srcUrl, id: sc.key})
         this.sceneRef.appendChild(el2);
         
         if (sc.objects.children){
@@ -564,6 +564,9 @@ class ResourceForm extends Component
             alert('Veuillez specifier une image');
             return;
         }
+        if (this.props.resourceId === 0){
+            this.state.data.key = 'scene-'+Date.now();
+        }
         $glVars.webApi.saveScene(this.state.data, this.onSaveResult);
     }
 
@@ -883,13 +886,13 @@ class Image360Form extends Component{
                 dataToEdit.rotationstart = data.rotationstart;
             }
             if (data.res){
-                dataToEdit.to = data.res.elid;
+                dataToEdit.to = data.res.key;
             }
             if(tmp.extra && tmp.extra.el){
                 Navigation.Edit(tmp.extra.el, dataToEdit);
             }
             if (data.res){
-                tmp.extra = {imgUrl: data.res.objects.srcUrl, to: data.res.elid, name: data.name, rotationstart: data.rotationstart, completion: data.completion};
+                tmp.extra = {imgUrl: data.res.objects.srcUrl, to: data.res.key, name: data.name, rotationstart: data.rotationstart, completion: data.completion};
             }
         }
         if (data.type == 'iframe'){
@@ -1036,7 +1039,7 @@ class Image360
     }
 
     createSceneFromObjects(objects, scene, sc){
-        let el2 = Panorama.Create({src: objects.srcUrl, id: sc.elid})
+        let el2 = Panorama.Create({src: objects.srcUrl, id: sc.key})
         scene.appendChild(el2);
         this.editingPanorama = el2;
 
@@ -1065,7 +1068,7 @@ class Image360
                 el1 = AText.Create(data, (e) => this.onElementClick(data.type, e));
                 break;
             case 'navigation':
-                data = {type: 'navigation', name: this.state.data.extra.name, for: this.state.scene.elid, rotationstart: this.state.data.extra.rotationstart, to: this.state.data.extra.to, ...commonData};
+                data = {type: 'navigation', name: this.state.data.extra.name, for: this.state.scene.key, rotationstart: this.state.data.extra.rotationstart, to: this.state.data.extra.to, ...commonData};
                 el1 = Navigation.Create(data, (e) => this.onElementClick(data.type, e));
                 break;
             case 'iframe':
