@@ -68,8 +68,7 @@ class MainView
         $this->page->requires->css(new moodle_url('./react/build/index.css'), true);
         $this->page->requires->js(new moodle_url('./react/build/index.js?v=a'.rand(700,900)), true);
 
-        echo $this->output->header();    
-        echo $this->output->heading(format_string($this->cm->name), 2);
+        echo $this->output->header();
 
         echo sprintf("<div id='mod_recit360tours' data-tour-id='%ld'></div>", $this->cm->instance);
 
