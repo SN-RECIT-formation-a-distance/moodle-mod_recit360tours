@@ -213,13 +213,24 @@ class PersistCtrl extends MoodlePersistCtrl
         left join {$this->prefix}recit360tours_views t3 on t2.id = t3.objectid
         where t1.tourid = $tourId and t2.completion = 1 and t3.userid = $userId");
 
-       $total = $this->mysqlConn->execSQLAndGetObject("select COUNT(t2.id) as count
-       from {$this->prefix}recit360tours_scenes t1
-       left join {$this->prefix}recit360tours_objects t2 on t1.id = t2.sceneid
-       where t1.tourid = $tourId and t2.completion = 1");
+        $total = $this->mysqlConn->execSQLAndGetObject("select COUNT(t2.id) as count
+        from {$this->prefix}recit360tours_scenes t1
+        left join {$this->prefix}recit360tours_objects t2 on t1.id = t2.sceneid
+        where t1.tourid = $tourId and t2.completion = 1");
+
+        $items = $this->mysqlConn->execSQLAndGetObjects("select t2.object
+        from {$this->prefix}recit360tours_scenes t1
+        left join {$this->prefix}recit360tours_objects t2 on t1.id = t2.sceneid
+        where t1.tourid = $tourId and t2.completion = 1");
+
+        if(!empty($items)){
+            foreach($items as &$item){
+                $item = json_decode($item->object);
+            }
+        }
 
         if (isset($completed->count) && isset($total->count)){
-            return array('completed' => $completed->count, 'total' => $total->count);
+            return array('completed' => $completed->count, 'total' => $total->count, 'itemscompleted' => $items);
         }
         return null;
 

@@ -126,29 +126,29 @@ export class ViewImage360 extends Component{
         }
         else{
             main = <>
-                <div style={{position:'absolute',scale:'0.3', top:'175px', right:'-80px', zIndex: 999}}>
-                    <CircularProgressbarWithChildren
-                        background
-                        backgroundPadding={0}
-                        strokeWidth={10}
-                        value={this.state.progress.percentage*100} 
-                        styles={buildStyles({
-                        backgroundColor: "#fff",
-                        pathColor: "#f0ad4e"
-                        })}>
-                        <RadialSeparators
-                          count={this.state.progress.total}
-                          style={{
-                            background: "#fff",
-                            width: "5px",
-                            // This needs to be equal to props.strokeWidth
-                            height: `${10}%`
-                          }}
-                        />
-                        <p style={{fontSize:'60px',textAlign:'center'}}>{this.state.progress.done}/{this.state.progress.total} ✓</p>
-                        </CircularProgressbarWithChildren>
-                </div>
                 <div style={{height:'600px'}}>
+                    <div style={{position:'absolute',scale:'0.3', top:'60px', right:'-80px', zIndex: 999}}>
+                        <CircularProgressbarWithChildren
+                            background
+                            backgroundPadding={0}
+                            strokeWidth={10}
+                            value={this.state.progress.percentage*100} 
+                            styles={buildStyles({
+                            backgroundColor: "#fff",
+                            pathColor: "#f0ad4e"
+                            })}>
+                            <RadialSeparators
+                            count={this.state.progress.total}
+                            style={{
+                                background: "#fff",
+                                width: "5px",
+                                // This needs to be equal to props.strokeWidth
+                                height: `${10}%`
+                            }}
+                            />
+                            <p style={{fontSize:'60px',textAlign:'center'}}>{this.state.progress.done}/{this.state.progress.total} ✓</p>
+                            </CircularProgressbarWithChildren>
+                    </div>
                     <a-scene embedded cursor="rayOrigin: mouse" raycaster="objects: .clickable,[gui-interactable]">
                         <a-assets>
                         </a-assets>
@@ -195,6 +195,14 @@ export class ViewImage360 extends Component{
             let data = result.data
             let el = document.getElementById('progress');
             if (el) el.remove();
+            if (data.completion?.itemscompleted){
+                for (let item of data.completion?.itemscompleted){
+                    let hotspot = document.querySelector('[data-key='+item.key+']');
+                    if (hotspot){
+                        hotspot.setAttribute('data-completed', '1');
+                    }
+                }
+            }
             if (data.completion){
                 let percentage = data.completion.completed / data.completion.total;
                 if (data.completion.completed == 0 || isNaN(percentage)) percentage = 0;
@@ -210,7 +218,7 @@ export class ViewImage360 extends Component{
                     el.setAttribute('height', '0.77');
                     el.setAttribute('font-size', '5');
                     el.setAttribute('loaded', percentage);
-                el.setAttribute('id', 'progress');
+                    el.setAttribute('id', 'progress');
                     el.setAttribute('position', '0 0 0.3');
                     el.setAttribute('scale', '0.5 0.5 0.5');
                     document.getElementById('lefthand').append(el);

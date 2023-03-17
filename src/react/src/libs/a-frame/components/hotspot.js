@@ -219,12 +219,13 @@ AFRAME.registerComponent('hover-text', {
 	  el.addEventListener('mouseenter', function () {
 		let t = document.createElement('a-entity');
 		t.classList.add('a-text')
-		t.setAttribute('text', {value: that.data.value, color: '#ffc8c8', align:'center', baseline: 'center', font: Assets.CustomFont, fontImage: Assets.CustomFontImage, negate: 'false'});
+		t.setAttribute('text', {value: that.data.value, color: '#fff', align:'center', baseline: 'center', font: Assets.CustomFont, fontImage: Assets.CustomFontImage, negate: 'false'});
 		if (that.data.size == 'small'){
 			t.setAttribute('scale', '1.3 1.3 1.3');
 			t.setAttribute('position', '0 0.5 0');
 		}else{
 			t.setAttribute('scale', '5 5 5');
+			t.setAttribute('position', '0 -0.5 0');
 		}
 		el.appendChild(t)
 	  });
@@ -237,7 +238,7 @@ AFRAME.registerComponent('hover-text', {
 	update(oldData){
 	}
 });
-AFRAME.registerComponent('data-completion', {
+AFRAME.registerComponent('data-completed', {
 	schema: {
 	  value: {default: ''},
 	},
@@ -245,6 +246,9 @@ AFRAME.registerComponent('data-completion', {
 	init: function () {
 	  var el = this.el;
 	  var img = el.querySelector('a-image');
+	  if (!img && el.tagName == "A-IMAGE"){
+		img = el;
+	  }
 	  if (img){
 		var url = img.getAttribute('src');
 		

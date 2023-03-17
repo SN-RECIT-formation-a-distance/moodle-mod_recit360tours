@@ -47,7 +47,7 @@ export class AText {
         if (height < 0.25) height = 0.25;
 
         el.setAttribute('height', height)
-        el.setAttribute('scale', "0.5 0.5 0.5")
+        el.setAttribute('scale', Assets.iconScale)
     }
 }
 
@@ -61,7 +61,7 @@ export class AImage {
         el1.classList.add('clickable');
         el1.classList.add('draggable');
         el1.setAttribute('src', Assets.imageIcon);
-        el1.setAttribute('scale', "0.5 0.5 0.5")
+        el1.setAttribute('scale', Assets.iconScale)
 
         AImage.Edit(el1, attributes, noOpen)
         return el1;
@@ -105,7 +105,7 @@ export class ASound {
                 }
             });
         }
-        el2.setAttribute('scale', '0.5 0.5 0.5');
+        el2.setAttribute('scale', Assets.iconScale);
         el2.classList.add('clickable');
         el2.classList.add('draggable');
         el1.appendChild(el2)
@@ -145,6 +145,7 @@ export class AIframe {
         }
         el1.classList.add('clickable');
         el1.classList.add('draggable');
+        el1.setAttribute('scale', Assets.iconScale);
         el1.setAttribute('src', Assets.videoIcon)
 
         AIframe.Edit(el1, attributes, noOpen)
@@ -197,7 +198,7 @@ export class AVideo {
         });
 
         document.querySelector('a-assets').appendChild(el2)
-        el1.setAttribute('scale', '0.5 0.5 0.5');
+        el1.setAttribute('scale', Assets.iconScale);
 
         AVideo.Edit(el1, attributes)
         return el1;
@@ -247,7 +248,7 @@ export class Navigation {
         }
         el1.classList.add('clickable');
         el1.classList.add('draggable');
-        el1.setAttribute('scale', '0.5 0.5 0.5');
+        el1.setAttribute('scale', Assets.iconScale);
         el1.setAttribute('src', Assets.hotspotIcon);
         Navigation.Edit(el1, attributes)
         return el1;
