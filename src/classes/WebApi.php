@@ -50,7 +50,7 @@ class WebApi extends MoodleApi
 
             foreach ($modinfo->cms as $cm){
                 if (!$cm->__get('url')) continue;
-                $result[] = array('id' => $cm->id, 'name' => $cm->name, 'modname' => $cm->modname, 'url' =>  $cm->__get('url')->out());
+                $result[] = array('id' => $cm->id, 'name' => $cm->name, 'modname' => $cm->modname, 'url' =>  $cm->__get('url')->out().'&autolinkpopup=1');
             }
             
             $this->prepareJson($result);

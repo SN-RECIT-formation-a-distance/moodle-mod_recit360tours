@@ -11,5 +11,5 @@ $string['pluginadministration'] = "Activité RÉCIT image 360 module administrat
 
 $string['maxgrade'] = 'Note totale de cet activité';
 
-$string['completionobjects'] = 'Obligé le clique des objets';
-$string['completionobjects_desc'] = 'Les élèves doivent cliquer sur tous les objets designé comme completion pour completer cette activité.';
+$string['completionobjects'] = 'Suivi du clic des objets';
+$string['completionobjects_desc'] = 'L\'étudiant doit consulter tous les objets avec suivi d\'achèvement.';

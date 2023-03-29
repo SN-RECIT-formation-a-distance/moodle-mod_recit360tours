@@ -126,8 +126,8 @@ export class ViewImage360 extends Component{
         }
         else{
             main = <>
-                <div style={{height:'600px'}}>
-                    <div style={{position:'absolute',scale:'0.3', top:'60px', right:'-80px', zIndex: 999}}>
+                <div style={{height:'600px',position:'relative'}}>
+                    <div style={{position:'absolute',scale:'0.3', top:'-90px', right:'-80px', zIndex: 999}}>
                         <CircularProgressbarWithChildren
                             background
                             backgroundPadding={0}
@@ -220,7 +220,7 @@ export class ViewImage360 extends Component{
                     el.setAttribute('loaded', percentage);
                     el.setAttribute('id', 'progress');
                     el.setAttribute('position', '0 0 0.3');
-                    el.setAttribute('scale', '0.5 0.5 0.5');
+                    el.setAttribute('scale', '0.35 0.35 0.35');
                     document.getElementById('lefthand').append(el);
                 }
             }
@@ -590,23 +590,18 @@ class ResourceForm extends Component
     }
 
     addChildrenToScene(dataToAdd){
-        let data = this.state.data;
-
        /* if (typeof data.objects.children == 'undefined'){
             data.objects.children = [];
         }*/
 
         let obj = this.createSceneObject(dataToAdd);
-        let that = this;
         $glVars.webApi.saveObject(obj, (result) => {
             if(!result.success){
                 $glVars.feedback.showError($glVars.i18n.tags.appname, result.msg);
                 return;
             }
 
-            obj.id = result.id;
-            data.objects.children.push(obj);
-            that.setState({data:data});
+            this.getData();
         });
     }
 
@@ -786,7 +781,11 @@ class Image360Form extends Component{
         if(tmp.extra && tmp.extra.el){
           //  tmp.extra.el.setAttribute('wasd-controls', "acceleration:10");
             this.image360.toggleCameraControls(false);
-            this.image360.addSphere();
+            let radius = '3';
+            if (tmp.extra.type == 'image'){
+                radius = '2.6';//The image popup must be nearer to be above other hotspots
+            }
+            this.image360.addSphere(radius);
             tmp.action = 'moving'
             this.setState({moving: true, data: tmp});
         }
@@ -833,13 +832,13 @@ class Image360Form extends Component{
                 tmp.extra = {name: event.currentTarget.getAttribute('hotname'),rotationstart: event.currentTarget.getAttribute('rotationstart')?.split(','), el: event.currentTarget};
             }
             if (type == 'image'){
-                tmp.extra = {file: event.currentTarget.getAttribute('filename'), el: event.currentTarget};
+                tmp.extra = {file: event.currentTarget.getAttribute('filename'), width: event.currentTarget.getAttribute('data-width'), height: event.currentTarget.getAttribute('data-height'), el: event.currentTarget};
             }
             if (type == 'video'){
-                tmp.extra = {file: event.currentTarget.getAttribute('filename'), loop: event.currentTarget.getAttribute('loop') == 'true', autoplay: event.currentTarget.getAttribute('autoplay') == 'true', el: event.currentTarget};
+                tmp.extra = {file: event.currentTarget.getAttribute('filename'), loop: event.currentTarget.getAttribute('loop') == 'true', autoplay: event.currentTarget.getAttribute('data-autoplay') == 'true', el: event.currentTarget};
             }
             if (type == 'sound'){
-                tmp.extra = {file: event.currentTarget.getAttribute('filename'), loop: event.currentTarget.getAttribute('loop') == 'true', autoplay: event.currentTarget.getAttribute('autoplay') == 'true', el: event.currentTarget};
+                tmp.extra = {file: event.currentTarget.getAttribute('filename'), loop: event.currentTarget.getAttribute('loop') == 'true', autoplay: event.currentTarget.getAttribute('data-autoplay') == 'true', el: event.currentTarget};
             }
             if (type == 'iframe'){
                 tmp.extra = {url: event.currentTarget.getAttribute('data-url'), activity: event.currentTarget.getAttribute('data-activity'), name: event.currentTarget.getAttribute('hover-text')?.value, external: (event.currentTarget.getAttribute('open-page-external') ? true : false), el: event.currentTarget};
@@ -917,6 +916,8 @@ class Image360Form extends Component{
             if (data.file){
                 dataToEdit.file = data.file;
                 dataToEdit.fileUrl = data.fileUrl;
+                dataToEdit.width = data.width;
+                dataToEdit.height = data.height;
             }
             if(tmp.extra && tmp.extra.el){
                 AImage.Edit(tmp.extra.el, dataToEdit, true);
@@ -952,7 +953,11 @@ class Image360Form extends Component{
         }else{
             tmp.action.step = 2;
             this.setState({data: tmp});
-            this.image360.addSphere();
+            let radius = '3';
+            if (tmp.extra.type == 'image'){
+                radius = '2.6';//The image popup must be nearer to be above other hotspots
+            }
+            this.image360.addSphere(radius);
         }
     }
 }
@@ -1007,12 +1012,12 @@ class Image360
         this.createSceneFromObjects(this.state.data.objects, this.state.sceneRef, this.state.scene);
     }
 
-    addSphere(){
+    addSphere(radius){
         let sphere = document.createElement('a-sphere');
         sphere.id = 'sphere'
         sphere.classList.add('clickable');
         sphere.setAttribute('material', 'side: back')
-        sphere.setAttribute('radius', '2')
+        sphere.setAttribute('radius', radius)
         sphere.setAttribute('visible', 'false')
         document.getElementById('acamera').append(sphere);
         
@@ -1084,7 +1089,7 @@ class Image360
                 el1 = AIframe.Create(data, (e) => this.onElementClick(data.type, e));
                 break;
             case 'image':
-                data = {type: 'image', file: this.state.data.extra.file, fileUrl: this.state.data.extra.fileUrl, ...commonData};
+                data = {type: 'image', width: this.state.data.extra.width, height: this.state.data.extra.height, file: this.state.data.extra.file, fileUrl: this.state.data.extra.fileUrl, ...commonData};
                 el1 = AImage.Create(data, (e) => this.onElementClick(data.type, e), true);
                 break;
             case 'sound':
@@ -1263,15 +1268,11 @@ class ModalElementForm extends Component
                 </Form.Row>
                     <Form.Row>
                         <Form.Group as={Col}>
-                            <Form.Label>Ouvrir dans une nouvelle onglet</Form.Label>
-                            <ToggleButtons name="external" type="radio" defaultValue={[this.state.data.external]} onChange={this.onDataChange} 
-                                    options={[
-                                        {value: true, text:"Oui"},
-                                        {value: false, text:"Non"}
-                                    ]}/>
+                            <Form.Label>L'URL spécifié doit accepter les iframe</Form.Label>
                         </Form.Group>
                     </Form.Row>
                 </div>;
+                            //<ToggleButtons name="external" type="radio" defaultValue={[this.state.data.external]} onChange={this.onDataChange}          options={[       {value: true, text:"Oui"},                    {value: false, text:"Non"}                ]}/>
                 break;
             case 'image':
                 body =
@@ -1282,6 +1283,7 @@ class ModalElementForm extends Component
                             <Form.Label>{"Fichier"}</Form.Label><br/>
                             {(!this.state.data.file || this.state.data.file.length == 0 || this.state.data.file.fileName) && <BtnUpload type="file" accept="image/jpeg,image/png" className='ml-1' required name='file' onChange={(e) => this.onFileChange(e)}/>}
                             {this.state.data.file && this.state.data.file.length > 0 && <span className='ml-1'>{this.state.data.file}</span>}
+                            {this.state.data.file && this.state.data.file.content && <span className='ml-1'><img src={this.state.data.file.content} width="200" onLoad={(e) => this.setImageSize('file', e)}/></span>}
                         </Form.Group>
                     </Form.Row>
                 </Form>;
@@ -1389,6 +1391,13 @@ class ModalElementForm extends Component
             data[event.target.name] = {content:reader.result, fileName:event.target.files[0].name};
             this.setState({data: data, changed: true})
         };
+    }
+
+    setImageSize(name, e){
+        let data = this.state.data;
+        data[name].width = (e.target.width/100).toFixed(2);
+        data[name].height = (e.target.height/100).toFixed(2);
+        this.setState({data: data, changed: true});
     }
 
     onSubmit(e){

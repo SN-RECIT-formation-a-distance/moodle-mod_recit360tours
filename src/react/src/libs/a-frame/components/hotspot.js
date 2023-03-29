@@ -221,11 +221,11 @@ AFRAME.registerComponent('hover-text', {
 		t.classList.add('a-text')
 		t.setAttribute('text', {value: that.data.value, color: '#fff', align:'center', baseline: 'center', font: Assets.CustomFont, fontImage: Assets.CustomFontImage, negate: 'false'});
 		if (that.data.size == 'small'){
-			t.setAttribute('scale', '1.3 1.3 1.3');
+			t.setAttribute('scale', '3 3 3');
 			t.setAttribute('position', '0 0.5 0');
 		}else{
 			t.setAttribute('scale', '5 5 5');
-			t.setAttribute('position', '0 -0.5 0');
+			t.setAttribute('position', '0 -0.6 0');
 		}
 		el.appendChild(t)
 	  });

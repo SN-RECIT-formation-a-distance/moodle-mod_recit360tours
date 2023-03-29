@@ -64,7 +64,7 @@ class Utils {
         
         foreach ($modData->cms as $cm) {
             if ($cmName == $cm->name){
-                return $cm->__get('url')->out();
+                return $cm->__get('url')->out() . '&autolinkpopup=1';
             }
         }
     }

@@ -1,3 +1,5 @@
+import { ASound } from "../../components/aframe-components";
+
 AFRAME.registerComponent('tour', {
     init: function () {
       var panorama = Array.prototype.slice.call(this.el.querySelectorAll('a-panorama'));
@@ -21,9 +23,8 @@ AFRAME.registerComponent('tour', {
     
       to.setAttribute('visible', 'true');
       to.setAttribute('position', '0 0 0');
-      if (for1 == undefined){
-        return;
-      }else{
+      if (for1){
+        ASound.stopAllSounds();
         for1.setAttribute('visible', 'false');
         for1.setAttribute('position', '0 1000 0');
         var camera = document.querySelector('a-camera');

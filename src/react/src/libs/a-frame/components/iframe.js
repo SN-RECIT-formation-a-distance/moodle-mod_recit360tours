@@ -93,7 +93,7 @@ AFRAME.registerComponent('open-page-iframe', {
 
 AFRAME.registerComponent('open-page-img', {
     schema: {
-        event: { type: "string", default: "click" },
+        event: { type: "string", default: "mousedown" },
         url: { type: "string", default: "" }
     },
     init() {
@@ -148,9 +148,9 @@ AFRAME.registerComponent('open-page-img', {
 
         if (this.usingVRMode){
             let el1 = document.createElement('a-image');
-            el1.addEventListener("click", () => {
+            el1.addEventListener("mouseup", (e) => {
                 el1.remove();
-                this.el.setAttribute('visible', 'true');
+                this.el.setAttribute('visible', 'true')
                 this.imageEl = null;
             });
             el1.classList.add('clickable');
@@ -158,7 +158,10 @@ AFRAME.registerComponent('open-page-img', {
             el1.setAttribute('src', this.data.url);
             this.el.parentElement.appendChild(el1);
             this.el.setAttribute('visible', 'false');
-            el1.setAttribute('position', this.el.getAttribute('position'));
+            el1.setAttribute('width', this.el.getAttribute('data-width'));
+            el1.setAttribute('height', this.el.getAttribute('data-height'));
+            let pos = this.el.getAttribute('position')
+            el1.setAttribute('position', {x: pos.x, y: pos.y, z: pos.z});
             el1.setAttribute('rotation', this.el.getAttribute('rotation'));
             this.imageEl = el1;
         }else{
@@ -218,7 +221,6 @@ AFRAME.registerComponent('open-page-external', {
     init() {
         let data = this.data;
         let el = this.el;
-        this.usingVRMode = this.el.sceneEl.is('vr-mode');
 
         if (data.event && data.url) {
             el.addEventListener(data.event, this.open.bind(this));
@@ -227,7 +229,10 @@ AFRAME.registerComponent('open-page-external', {
 
     },
     open(){
+        this.usingVRMode = this.el.sceneEl.is('vr-mode');
         if (this.usingVRMode){
+            this.el.sceneEl.exitVR();
+            window.open(this.data.url);
             window.location.href = this.data.url;
         }else{
             window.open(this.data.url, '_blank');

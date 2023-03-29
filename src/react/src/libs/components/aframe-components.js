@@ -47,7 +47,7 @@ export class AText {
         if (height < 0.25) height = 0.25;
 
         el.setAttribute('height', height)
-        el.setAttribute('scale', Assets.iconScale)
+        el.setAttribute('scale', '0.7 0.7 0.7')
     }
 }
 
@@ -71,6 +71,8 @@ export class AImage {
         if (attributes.position) el.object3D.position.set(attributes.position.x, attributes.position.y, attributes.position.z);
         if (attributes.rotation) el.setAttribute('rotation', {x:attributes.rotation.x, y:attributes.rotation.y, z:attributes.rotation.z});
         if (attributes.completion) el.setAttribute('data-completion', attributes.completion);
+        if (attributes.width) el.setAttribute('data-width', attributes.width);
+        if (attributes.height) el.setAttribute('data-height', attributes.height);
         if (attributes.fileUrl){
             if (!noOpen){
                 el.setAttribute('open-page-img', 'url:'+attributes.fileUrl+';event:click');
@@ -82,6 +84,7 @@ export class AImage {
 }
 
 export class ASound {
+    static sounds = [];
     static Create(attributes, clickCb, noOpen){
         
         let el1 = document.createElement('a-sound');
@@ -97,12 +100,19 @@ export class ASound {
         if (!noOpen) {
             el1.addEventListener('click', (e) => {
                 if (el1.timeStamp && (e.timeStamp - el1.timeStamp) < 1000) return; //Needed because event is fired twice
-                el1.timeStamp = e.timeStamp;
-                if (el1.components.sound.isPlaying){
+                if (el1.getAttribute('autoplay')){
+                    el1.removeAttribute('autoplay')
+                    el1.components.sound.playSound();
+                    setTimeout(() => el1.components.sound.pauseSound(), 300);
+                    return;
+                }
+                if (el1.components.sound.isPlaying && el1.timeStamp){
                     el1.components.sound.pauseSound();
                 }else{
                     el1.components.sound.playSound();
+                    ASound.sounds.push(el1.components.sound);
                 }
+                el1.timeStamp = e.timeStamp;
             });
         }
         el2.setAttribute('scale', Assets.iconScale);
@@ -110,11 +120,11 @@ export class ASound {
         el2.classList.add('draggable');
         el1.appendChild(el2)
 
-        ASound.Edit(el1, attributes)
+        ASound.Edit(el1, attributes, noOpen)
         return el1;
     }
 
-    static Edit(el, attributes){
+    static Edit(el, attributes, noOpen){
         if (attributes.position) el.object3D.position.set(attributes.position.x, attributes.position.y, attributes.position.z);
         if (attributes.rotation) el.setAttribute('rotation', {x:attributes.rotation.x, y:attributes.rotation.y, z:attributes.rotation.z});
         if (attributes.completion) el.setAttribute('data-completion', attributes.completion);
@@ -123,9 +133,12 @@ export class ASound {
             el.setAttribute('filename', attributes.file)
         }
         if (attributes.autoplay){
-            el.setAttribute('autoplay', 'true')
+            if (!noOpen) el.setAttribute('autoplay', 'true')
+            el.setAttribute('data-autoplay', 'true');
+            el.timeStamp = 0;//Reset sound event
         }else{
             el.removeAttribute('autoplay')
+            el.removeAttribute('data-autoplay')
         }
         if (attributes.loop){
             el.setAttribute('loop', 'true')
@@ -133,6 +146,13 @@ export class ASound {
             el.removeAttribute('loop')
         }
         if (attributes.key) el.setAttribute('data-key', attributes.key);
+    }
+
+    static stopAllSounds(){
+        for (let s of ASound.sounds){
+            s.stopSound();
+        }
+        ASound.sounds = [];
     }
 }
 

@@ -221,7 +221,8 @@ class PersistCtrl extends MoodlePersistCtrl
         $items = $this->mysqlConn->execSQLAndGetObjects("select t2.object
         from {$this->prefix}recit360tours_scenes t1
         left join {$this->prefix}recit360tours_objects t2 on t1.id = t2.sceneid
-        where t1.tourid = $tourId and t2.completion = 1");
+        left join {$this->prefix}recit360tours_views t3 on t2.id = t3.objectid
+        where t1.tourid = $tourId and t2.completion = 1 and t3.userid = $userId");
 
         if(!empty($items)){
             foreach($items as &$item){
@@ -265,6 +266,8 @@ class PersistCtrl extends MoodlePersistCtrl
         }catch(Exception $e){}///Sometimes throws an error but saves anyway
 
         $obj->fileUrl = \moodle_url::make_pluginfile_url($context->id, 'mod_recit360tours', 'resources', 0, '/', $obj->file)->out();
+        if (isset($filesave->width)) $obj->width = $filesave->width;
+        if (isset($filesave->height)) $obj->height = $filesave->height;
         return $obj;
     }
 
