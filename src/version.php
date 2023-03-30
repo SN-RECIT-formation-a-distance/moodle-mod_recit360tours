@@ -22,7 +22,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2023013000;       // The current module version (Date: YYYYMMDDXX)
+$plugin->version   = 2023033000;       // The current module version (Date: YYYYMMDDXX)
 $plugin->requires = 2020061500.00; // Moodle 3.9.0
 $plugin->component = 'mod_recit360tours';        // Full name of the plugin (used for diagnostics)
 $plugin->release = 'v1.0.0-beta'; 
