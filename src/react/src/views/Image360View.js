@@ -8,6 +8,8 @@ import {$glVars} from '../common/common';
 import { JsNx } from '../libs/utils/Utils';
 import 'aframe';
 import 'aframe-gui';
+import * as htmlToImage from 'html-to-image';
+import { toPng, toJpeg, toBlob, toPixelData, toSvg } from 'html-to-image';
 import { aframeComponentFactory, AIframe, AImage, ASound, AText, AVideo, Navigation, Panorama } from '../libs/components/aframe-components';
 import { Assets } from '../common/assets';
 import {
@@ -17,6 +19,7 @@ import {
 } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import RadialSeparators from '../libs/utils/Radial';
+import { TextEditor } from '../libs/components/TextEditor';
 
 export class ViewImage360 extends Component{
     static defaultProps = {
@@ -824,9 +827,9 @@ class Image360Form extends Component{
             let tmp = this.state.data;
             if (tmp.action && (this.state.moving || tmp.action.step == 2)) return;
             tmp.action = {type:type, step: 1};
-            tmp.elementId = event.target.getAttribute('data-key');
+            tmp.elementId = event.currentTarget.getAttribute('data-key');
             if (type == 'text'){
-                tmp.extra = {text: event.target.getAttribute('text').value, el: event.target};
+                tmp.extra = {text: event.currentTarget.getAttribute('data-text'), hotspot: event.currentTarget.getAttribute('data-hotspot') == 'true', el: event.currentTarget};
             }
             if (type == 'navigation'){
                 tmp.extra = {name: event.currentTarget.getAttribute('hotname'),rotationstart: event.currentTarget.getAttribute('rotationstart')?.split(','), el: event.currentTarget};
@@ -846,6 +849,7 @@ class Image360Form extends Component{
 
             //Valid for all
             tmp.extra.completion = parseInt(event.currentTarget.getAttribute('data-completion')) ? 1 :0;
+            tmp.extra.isEditing = true;
             this.setState({data: tmp});
         //}
     }
@@ -878,7 +882,9 @@ class Image360Form extends Component{
         }
         
         if (data.type == 'text'){
-            dataToEdit = {text: data.text, completion: data.completion};
+            dataToEdit = {text: data.text, image: data.image, hotspot: data.hotspot, completion: data.completion};
+            dataToEdit.width = data.width;
+            dataToEdit.height = data.height;
             if(tmp.extra && tmp.extra.el){
                 AText.Edit(tmp.extra.el, dataToEdit);
             }
@@ -1077,8 +1083,8 @@ class Image360
 
         switch(this.state.data.action.type){
             case 'text':
-                data = {type: 'text', backgroundColor: '#ffffff', color: '#000', fontSize: '20px', text: this.state.data.extra.text, ...commonData};
-                el1 = AText.Create(data, (e) => this.onElementClick(data.type, e));
+                data = {type: 'text', backgroundColor: '#000', color: '#fff', fontSize: '20px', width: this.state.data.extra.width, height: this.state.data.extra.height, text: this.state.data.extra.text, hotspot: this.state.data.extra.hotspot, image: this.state.data.extra.image, ...commonData};
+                el1 = AText.Create(data, (e) => this.onElementClick(data.type, e), true);
                 break;
             case 'navigation':
                 data = {type: 'navigation', name: this.state.data.extra.name, for: this.state.scene.key, rotationstart: this.state.data.extra.rotationstart, to: this.state.data.extra.to, ...commonData};
@@ -1193,9 +1199,27 @@ class ModalElementForm extends Component
                     <Form.Row>
                         <Form.Group as={Col}>
                             <Form.Label>{"Texte"}</Form.Label>
-                            <Form.Control as="textarea" required value={this.state.data.text} name="text" onChange={this.onDataChange} rows={7}/>
+                            <TextEditor required html={this.state.data.text} name="text" onChange={this.onDataChange}/>
                         </Form.Group>
                     </Form.Row>
+                    <Form.Row>
+                        <Form.Group as={Col}>
+                            <Form.Label>{"Aperçu"}</Form.Label>
+                                <div style={{backgroundColor: 'rgba(0,0,0,200)', padding: '20px', borderRadius: '10px', color: '#fff', width: 'fit-content', maxWidth: '400px'}} dangerouslySetInnerHTML={{__html: this.state.data.text}} id="textpreview">
+                                    
+                                </div>
+                        </Form.Group>
+                    </Form.Row>
+                    {!this.state.data.isEditing && <Form.Row>
+                        <Form.Group as={Col}>
+                            <Form.Label>Placer en tant que hotspot</Form.Label>
+                            <ToggleButtons name="hotspot" type="radio" defaultValue={[this.state.data.hotspot]} onChange={this.onDataChange} 
+                                    options={[
+                                        {value: true, text:"Oui"},
+                                        {value: false, text:"Non"}
+                                    ]}/>
+                        </Form.Group>
+                    </Form.Row>}
                 </Form>;
                 break;
             case 'navigation':
@@ -1409,8 +1433,22 @@ class ModalElementForm extends Component
 
         if (this.formRef.current && this.formRef.current.checkValidity() === false) {
             this.setState({formValidated: true, data:data});            
-        }
-        else{
+        } else {
+            if (this.props.type == 'text'){
+                let node = document.getElementById('textpreview');
+                htmlToImage.toPng(node)
+                .then((dataUrl) => {
+                    let img = new Image();
+                    img.src = dataUrl;
+                    img.onload = () => {
+                        data.image = dataUrl;
+                        data.width = (img.width/100).toFixed(2);
+                        data.height = (img.height/100).toFixed(2);
+                        this.setState({formValidated: true, data:data}, () => this.props.onSave(data));
+                    }
+                })
+                return;
+            }
             this.setState({formValidated: true, data:data}, () => this.props.onSave(data));
         }
     }

@@ -19,35 +19,61 @@ export class Panorama {
 }
 
 export class AText {
-    static Create(attributes, clickCb){
-        
-        let el1 = document.createElement('a-plane');
+    static Create(attributes, clickCb, noOpen){
+        let el1 = document.createElement('a-image');
         if (clickCb){
             el1.addEventListener("click", clickCb);
         }
         el1.classList.add('clickable');
         el1.classList.add('draggable');
+        
+        if (attributes.hotspot){
+            el1.setAttribute('src', Assets.textIcon);
+            el1.setAttribute('scale', Assets.iconScale);
+            let el = document.createElement('a-image');
+            el1.append(el);
+            el.setAttribute('visible', false);
+            el.setAttribute('scale', '1.3 1.3 1.3')
+            el.classList.add('clickable')
+            el.visible = false;
+            el.object3D.position.set(0, 0, 1);
+            if (!noOpen){
+                el1.addEventListener("click", (e) => {
+                    if (el1.timeStamp && (e.timeStamp - el1.timeStamp) < 1000) return; //Needed because event is fired twice
+                    el.setAttribute('visible', !el.visible);
+                    el.visible = !el.visible;
+                    el1.timeStamp = e.timeStamp;
+                });
+                el.addEventListener("click", (e) => {
+                    if (el1.timeStamp && (e.timeStamp - el1.timeStamp) < 1000) return; //Needed because event is fired twice
+                    el.setAttribute('visible', !el.visible);
+                    el.visible = !el.visible;
+                    el1.timeStamp = e.timeStamp;
+                });
+            }
+        }
 
-        AText.Edit(el1, attributes)
+        AText.Edit(el1, attributes, noOpen)
         return el1;
     }
 
-    static Edit(el, attributes){
+    static Edit(el, attributes, noOpen){
         if (attributes.position) el.object3D.position.set(attributes.position.x, attributes.position.y, attributes.position.z);
         if (attributes.rotation) el.setAttribute('rotation', {x:attributes.rotation.x, y:attributes.rotation.y, z:attributes.rotation.z});
         if (attributes.completion) el.setAttribute('data-completion', attributes.completion);
-        if (attributes.text) el.setAttribute('text', {value:attributes.text, color: attributes.color, align:'center', baseline: 'center', font: Assets.CustomFont, fontImage: Assets.CustomFontImage, negate: 'false'});
-        if (attributes.backgroundColor) el.setAttribute('material', {color: attributes.backgroundColor, opacity: 0.7});
+        if (attributes.text) el.setAttribute('data-text', attributes.text);
         if (attributes.key) el.setAttribute('data-key', attributes.key);
-        //el.setAttribute('geometry', {primitive:'plane', width: '2', height: '2'})
-        el.setAttribute('width', "2");
+        if (attributes.hotspot) el.setAttribute('data-hotspot', attributes.hotspot);
+        let child = el.querySelector('a-image');
 
-        let height = 0.25;//Minimum height is 0.25, there are approx 90 chars per line so we calculate number of lines by 0.25 (height for one line)
-        height = height * (attributes.text.length / 90)
-        if (height < 0.25) height = 0.25;
-
-        el.setAttribute('height', height)
-        el.setAttribute('scale', '0.7 0.7 0.7')
+        if (!noOpen || !child){
+            let img = el;
+            if (child) img = child;//If it is a hotspot image is child
+            if (attributes.image) img.setAttribute('src', attributes.image);
+            if (attributes.width) img.setAttribute('width', attributes.width);
+            if (attributes.height) img.setAttribute('height', attributes.height);
+            img.setAttribute('opacity', '0.8');
+        }
     }
 }
 
@@ -296,7 +322,7 @@ export class aframeComponentFactory {
             return Panorama.Create(attributes, cb);
         }
         if (attributes.type == 'text'){
-            return AText.Create(attributes, cb);
+            return AText.Create(attributes, cb, noOpen);
         }
         if (attributes.type == 'navigation'){
             return Navigation.Create(attributes, cb);

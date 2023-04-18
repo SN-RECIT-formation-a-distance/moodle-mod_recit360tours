@@ -1,5 +1,6 @@
 export class Assets {
     static soundIcon = `${M.cfg.wwwroot}/mod/recit360tours/assets/images/sound.png`;
+    static textIcon = `${M.cfg.wwwroot}/mod/recit360tours/assets/images/text.png`;
     static hotspotIcon = `${M.cfg.wwwroot}/mod/recit360tours/assets/images/navigation.png`;
     static imageIcon = `${M.cfg.wwwroot}/mod/recit360tours/assets/images/image.png`;
     static videoIcon = `${M.cfg.wwwroot}/mod/recit360tours/assets/images/link.png`;
