@@ -7,9 +7,7 @@ import {ComboBoxPlus} from '../libs/components/ComboBoxPlus';
 import {$glVars} from '../common/common';
 import { JsNx } from '../libs/utils/Utils';
 import 'aframe';
-import 'aframe-gui';
 import * as htmlToImage from 'html-to-image';
-import { toPng, toJpeg, toBlob, toPixelData, toSvg } from 'html-to-image';
 import { aframeComponentFactory, AIframe, AImage, ASound, AText, AVideo, Navigation, Panorama } from '../libs/components/aframe-components';
 import { Assets } from '../common/assets';
 import {
@@ -159,16 +157,17 @@ export class ViewImage360 extends Component{
                         <a-entity laser-controls="hand: left" id="lefthand" raycaster="objects: .clickable;"></a-entity>
                         <a-entity laser-controls="hand: right" raycaster="objects: .clickable;"></a-entity>
 
-                        <a-entity 
-                        raycaster="objects: .clickable,[gui-interactable]; far: 5; lineColor: red; lineOpacity: 0.5">
+                        <a-entity raycaster="objects: .clickable,[gui-interactable]; far: 5; lineColor: red; lineOpacity: 0.5">
                         </a-entity>
 
+                        <a-entity id="camerarig">
                         <a-camera 
                         id="camerarig" 
                         wasd-controls-enabled="false"
                         raycaster="objects: .clickable,[gui-interactable]"  
                         cursor="rayOrigin:mouse">
                         </a-camera>
+                        </a-entity>
                         	
                         <a-tour id="image360">
                         </a-tour>
@@ -800,6 +799,7 @@ class Image360Form extends Component{
         let tmp = this.state.data;
         if (!tmp) return;
         let point = event.detail.intersection.point;
+
         let campos = document.getElementById('acamera').getAttribute('position');
         tmp.extra.el.object3D.position.set(point.x, point.y, point.z);
         tmp.extra.el.object3D.lookAt(campos.x, campos.y, campos.z);
@@ -1466,12 +1466,23 @@ class ModalRotationSelector extends Component
         super(props);
     }
 
+    componentWillUnmount(){
+        const scene = document.getElementById('a-rotationselector');
+        if (scene) {
+            scene.parentNode.removeChild(scene);
+            if (scene.renderer) {
+            // aframe already do scene.renderer.xr.dispose(); when the scene is
+            // detached but this doesn't stop properly the animation loop,
+            // renderer.dispose() calls xr.dispose() and animation.stop()
+               scene.renderer.dispose();
+            }
+        }
+    }
+
     render(){
         let body = <div style={{height:'400px',marginBottom:'55px'}}>
             <div className='alert alert-warning'>Veuillez placer la vue à la rotation souhaité.</div>
-            <a-scene embedded cursor="rayOrigin: mouse" raycaster="objects: .clickable,[gui-interactable]">
-                <a-assets>
-                </a-assets>
+            <a-scene id='a-rotationselector' embedded>
                 <a-camera wasd-controls-enabled="false" id="acamera2"></a-camera>
                 <a-sky src={this.props.data.objects.srcUrl}/>
             </a-scene>

@@ -4,9 +4,9 @@ AFRAME.registerComponent('circle-progress', {
         loaded: {type: 'number', default: 0.5 },
         fontSize: {type: 'number', default: 0.2},
         fontFamily: {type: 'string', default: ''},
-        fontColor: {type: 'string', default: key_grey},
-        backgroundColor: {type: 'string', default: key_offwhite},
-        activeColor: {type: 'string', default: key_orange},
+        fontColor: {type: 'string', default: '#c6c6c6'},
+        backgroundColor: {type: 'string', default: '#fff'},
+        activeColor: {type: 'string', default: '#ff0000'},
     },
     init: function() {
 
