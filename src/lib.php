@@ -28,20 +28,36 @@ require_once($CFG->libdir.'/gradelib.php');
 require_once(dirname(__FILE__) . "/classes/PersistCtrl.php");
 
 /**
- * List of features supported in recit360tours module
+ * List of features supported in recit360 module
  * @param string $feature FEATURE_xx constant for requested feature
  * @return mixed True if module supports feature, false if not, null if doesn't know
  */
 function recit360tours_supports($feature) {
+    global $CFG;
+    if ($CFG->version >= 2022041900){//Moodle 4.0
+        return recit360tours_supports_moodle4($feature);
+    }else{
+        return recit360tours_supports_moodle3($feature);
+    }
+}
+
+function recit360tours_supports_moodle3($feature) {
     switch($feature) {
-        //case FEATURE_ARCHETYPE:           return ARCHETYPE_RESOURCE;
-        //case FEATURE_GROUPS:                  return false;
-        //case FEATURE_GROUPINGS:               return false;
         case FEATURE_MOD_INTRO:               return true;
         case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
-        //case FEATURE_GRADE_HAS_GRADE:         return true;
         case FEATURE_COMPLETION_HAS_RULES:         return true;
-        //case FEATURE_GRADE_OUTCOMES:          return true;
+        case FEATURE_BACKUP_MOODLE2:          return true;
+        case FEATURE_SHOW_DESCRIPTION:        return true;
+
+        default: return null;
+    }
+}
+
+function recit360tours_supports_moodle4($feature) {
+    switch($feature) {
+        case FEATURE_MOD_INTRO:               return true;
+        case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
+        case FEATURE_COMPLETION_HAS_RULES:         return true;
         case FEATURE_BACKUP_MOODLE2:          return true;
         case FEATURE_SHOW_DESCRIPTION:        return true;
         case FEATURE_MOD_PURPOSE: return MOD_PURPOSE_COMMUNICATION;
