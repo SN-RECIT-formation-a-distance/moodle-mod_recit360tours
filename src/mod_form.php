@@ -63,16 +63,20 @@ class mod_recit360tours_mod_form extends moodleform_mod {
      */
     public function add_completion_rules(): array {
         $mform = $this->_form;
+        $suffix = $this->get_suffix();
+
+        $completionobjects = "completionobjects$suffix";
+        $completionobjectsgroup = "completionobjectsgroup$suffix";
 
         // Elements for completion by Attendance.
         $attendance['grouplabel'] = get_string('completionobjects', 'recit360tours');
         $attendance['rulelabel'] = get_string('completionobjects_desc', 'recit360tours');
         $attendance['group'] = [
-            $mform->createElement('advcheckbox', 'completionobjects', '', $attendance['rulelabel'] . '&nbsp;')
+            $mform->createElement('advcheckbox', $completionobjects, '', $attendance['rulelabel'] . '&nbsp;')
         ];
-        $mform->addGroup($attendance['group'], 'completionobjectsgroup', $attendance['grouplabel'], [' '], false);
+        $mform->addGroup($attendance['group'], $completionobjectsgroup, $attendance['grouplabel'], [' '], false);
 
-        return ['completionobjectsgroup'];
+        return [$completionobjectsgroup];
     }
 
     /**
@@ -82,18 +86,24 @@ class mod_recit360tours_mod_form extends moodleform_mod {
      * @return bool True if one or more rules is enabled, false if none are.
      */
     public function completion_rule_enabled($data) {
-        return !empty($data['completionobjects']);
+        $suffix = $this->get_suffix();
+        $completionobjects = "completionobjects$suffix";
+        return !empty($data[$completionobjects]);
     }
 
     function data_preprocessing(&$default_values){
-    
+        $suffix = $this->get_suffix();
+        $completionobjects = "completionobjects$suffix";
         // Set up the completion checkboxes which aren't part of standard data.
         // We also make the default value (if you turn on the checkbox) for those
         // numbers to be 1, this will not apply unless checkbox is ticked.
-        $default_values['completionobjects']= !empty($default_values['completionobjects']) ? 1 : 0;
+        $default_values[$completionobjects]= !empty($default_values[$completionobjects]) ? 1 : 0;
     }
 
     function get_data() {
+        $suffix = $this->get_suffix();
+        $completionobjects = "completionobjects$suffix";
+
         $data = parent::get_data();
         if (!$data) {
             return $data;
@@ -101,7 +111,7 @@ class mod_recit360tours_mod_form extends moodleform_mod {
         if (!empty($data->completionunlocked)) {
             // Turn off completion settings if the checkboxes aren't ticked
             $autocompletion = !empty($data->completion) && $data->completion==COMPLETION_TRACKING_AUTOMATIC;
-            $data->completionobjects = !empty($data->completionobjects) ? 1 : 0;
+            $data->$completionobjects = !empty($data->$completionobjects) ? 1 : 0;
             if (empty($data->completionpostsenabled) || !$autocompletion) {
                //$data->completionobjects = 0;
             }

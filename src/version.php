@@ -22,9 +22,9 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2024050900;       // The current module version (Date: YYYYMMDDXX)
+$plugin->version   = 2024071801;       // The current module version (Date: YYYYMMDDXX)
 $plugin->requires = 2022041904.00; // Moodle 4.0.0
 $plugin->component = 'mod_recit360tours';        // Full name of the plugin (used for diagnostics)
-$plugin->release = 'v1.0.4-stable'; 
-$plugin->supported = [400, 403];      //  Moodle 3.9.x, 3.10.x and 3.11.x are supported.
+$plugin->release = 'v1.0.5-stable'; 
+$plugin->supported = [400, 405];      //  Moodle 3.9.x, 3.10.x and 3.11.x are supported.
 $plugin->maturity = MATURITY_STABLE; // MATURITY_ALPHA, MATURITY_BETA, MATURITY_RC or MATURITY_STABLE
