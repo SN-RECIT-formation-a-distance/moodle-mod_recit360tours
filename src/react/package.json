@@ -1,6 +1,6 @@
 {
   "name": "recit360tours",
-  "version": "1.0.4-stable",
+  "version": "1.0.6-stable",
   "description": "Activité RÉCIT 360",
   "main": "index.js",
   "scripts": {
