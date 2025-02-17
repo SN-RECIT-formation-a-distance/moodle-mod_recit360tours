@@ -26,6 +26,7 @@ class RecitMySQLConn
 {
 	protected $moodleDB;
 	protected $mysqli;
+    protected $refMoodleDB;
 	
 	public function __construct(\mysqli_native_moodle_database $DB){
 		$this->moodleDB = $DB;
