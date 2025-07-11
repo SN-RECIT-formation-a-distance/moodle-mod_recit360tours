@@ -361,7 +361,7 @@ export class ModalImage360Editor extends Component
                 (this.state.resourceId === -1 ?
                     <div>
                         <span className='h3 bold d-flex align-items-center'>{"Ajouter une scène"}<Button className='rounded-circle ml-2' variant='outline-primary' onClick={this.onAdd}><FontAwesomeIcon icon={faPlus}/></Button></span>
-                        <div className='d-flex'>
+                        <div className='d-flex flex-wrap'>
                             {this.state.dataProvider.map((item, index) => {
                                 let ret = 
                                     <div key={index} className='card m-3' style={{maxWidth: "200px"}}>
@@ -1180,7 +1180,7 @@ class ModalElementForm extends Component
                 <Button variant="success" onClick={this.onSubmit} disabled={!this.checkValidity()}><FontAwesomeIcon icon={faSave}/>{" Enregistrer"}</Button>
             </ButtonGroup></div>;
 
-        return this.state.selectRotationPopup ? <ModalRotationSelector data={this.state.data.res} onSave={(rot) => this.onSelectRotation(rot)} onClose={() => this.setState({selectRotationPopup: false})}/> : <Modal width="50%" title={this.state.data.elementId != 0 ? 'Modifier élément' : 'Créer élément'} body={body} footer={footer} onClose={this.onClose} />;
+        return this.state.selectRotationPopup ? <ModalRotationSelector data={this.state.data.res} onSave={(rot) => this.onSelectRotation(rot)} onClose={() => this.setState({selectRotationPopup: false})}/> : <Modal title={this.state.data.elementId != 0 ? 'Modifier élément' : 'Créer élément'} body={body} footer={footer} onClose={this.onClose} />;
     }
 
     checkValidity(){
