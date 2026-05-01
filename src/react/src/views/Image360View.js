@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {ButtonToolbar, ButtonGroup, Button, Form, Col, Alert } from 'react-bootstrap';
+import {ButtonToolbar, ButtonGroup, Button, Form, Col, Alert, Row } from 'react-bootstrap';
 import {faArrowLeft, faPencilAlt, faParagraph, faPlus, faTrashAlt, faArrowsAlt, faImage, faMusic, faExternalLinkAlt, faMapMarker, faMapMarked, faSave, faTimes} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {ToggleButtons, Modal, BtnUpload, DataGrid} from '../libs/components/Components';
@@ -360,7 +360,7 @@ export class ModalImage360Editor extends Component
         let main =
                 (this.state.resourceId === -1 ?
                     <div>
-                        <span className='h3 bold d-flex align-items-center'>{"Ajouter une scène"}<Button className='rounded-circle ml-2' variant='outline-primary' onClick={this.onAdd}><FontAwesomeIcon icon={faPlus}/></Button></span>
+                        <span className='h3 bold d-flex align-items-center'>{"Ajouter une scène"}<Button className='rounded-circle ms-2' variant='outline-primary' onClick={this.onAdd}><FontAwesomeIcon icon={faPlus}/></Button></span>
                         <div className='d-flex flex-wrap'>
                             {this.state.dataProvider.map((item, index) => {
                                 let ret = 
@@ -371,8 +371,8 @@ export class ModalImage360Editor extends Component
                                             <br/>
                                             <div className='d-flex justify-content-center mt-3'>
                                                 <div className="btn-group" style={{position: "absolute", bottom: "1rem"}}>
-                                                    <Button className='rounded-circle ml-2' variant='outline-primary' onClick={() => this.onEdit(item.id)} title="Modifer la scène"><FontAwesomeIcon icon={faPencilAlt}/></Button>
-                                                    <Button className='rounded-circle ml-2' variant='outline-primary' onClick={() => this.onDelete(item.id)} title="Supprimer la scène"><FontAwesomeIcon icon={faTrashAlt}/></Button>
+                                                    <Button className='rounded-circle ms-2' variant='outline-primary' onClick={() => this.onEdit(item.id)} title="Modifer la scène"><FontAwesomeIcon icon={faPencilAlt}/></Button>
+                                                    <Button className='rounded-circle ms-2' variant='outline-primary' onClick={() => this.onDelete(item.id)} title="Supprimer la scène"><FontAwesomeIcon icon={faTrashAlt}/></Button>
                                                 </div>
                                             </div>
                                         </div>
@@ -473,13 +473,13 @@ class ResourceForm extends Component
             <div>
 
                 <Form noValidate onSubmit={this.onSubmit} validated={this.state.formValidated} ref={this.formRef}>
-                    <Form.Row>
+                    <Row>
                         <Form.Group as={Col}>
                             <Form.Label>{$glVars.i18n.tags.name}</Form.Label>
                             <Form.Control type="text" required value={data.name} name="name" onChange={this.onDataChange}/>
                         </Form.Group>
-                    </Form.Row>
-                    <Form.Row>
+                    </Row>
+                    <Row>
                         <Form.Group as={Col}>
                             <Form.Label>Scène de départ</Form.Label>
                             <ToggleButtons name="startscene" type="radio" defaultValue={[data.startscene]} onChange={this.onDataChange} 
@@ -488,10 +488,10 @@ class ResourceForm extends Component
                                         {value: 0, text:"Non"}
                                     ]}/>
                         </Form.Group>
-                    </Form.Row>
+                    </Row>
                     
                     {this.props.resourceId === 0 &&
-                        <Form.Row>
+                        <Row>
                             <Form.Group as={Col}>
                                 <Form.Label>{"Image 360"}</Form.Label><br/>
                                 <BtnUpload type="file" required name='image' accept="image/jpeg,.mp4" onChange={(e) => this.onFileChange(e)}/>
@@ -502,7 +502,7 @@ class ResourceForm extends Component
                                     </div>
                                 }
                             </Form.Group>
-                        </Form.Row>
+                        </Row>
                     }
                 </Form>                
 
@@ -515,12 +515,12 @@ class ResourceForm extends Component
 
         let main =
                 <div>
-                    {this.state.popup && <Modal width='50%' title={'Ressource Image 360'} body={body} footer={footer} onClose={() => this.setState({popup:false})} />}
+                    {this.state.popup && <Modal size="md" title={'Ressource Image 360'} body={body} footer={footer} onClose={() => this.setState({popup:false})} />}
                     <div className="mb-4 d-flex align-items-center" >
-                        <Button variant="outline-primary" className="rounded-circle mr-2" onClick={this.props.onClose} title="Revenir"><FontAwesomeIcon icon={faArrowLeft}/></Button>
+                        <Button variant="outline-primary" className="rounded-circle me-2" onClick={this.props.onClose} title="Revenir"><FontAwesomeIcon icon={faArrowLeft}/></Button>
                         <br/>
                         <span className='m-0 h2'>Modification de la scène <u>{data.name}</u></span>
-                        <Button variant="outline-primary" className="rounded-circle ml-2" onClick={() => this.setState({popup:true})} title="Modifier"><FontAwesomeIcon icon={faPencilAlt}/></Button>
+                        <Button variant="outline-primary" className="rounded-circle ms-2" onClick={() => this.setState({popup:true})} title="Modifier"><FontAwesomeIcon icon={faPencilAlt}/></Button>
                     </div>
                     {this.props.resourceId > 0 && <Image360Form data={data} onAddChildren={this.addChildrenToScene} onEditChildren={this.onEditChildren} onDeleteChildren={this.onDeleteChildren} resourceList={this.props.resourceList}/>}
                 </div>;
@@ -1180,7 +1180,7 @@ class ModalElementForm extends Component
                 <Button variant="success" onClick={this.onSubmit} disabled={!this.checkValidity()}><FontAwesomeIcon icon={faSave}/>{" Enregistrer"}</Button>
             </ButtonGroup></div>;
 
-        return this.state.selectRotationPopup ? <ModalRotationSelector data={this.state.data.res} onSave={(rot) => this.onSelectRotation(rot)} onClose={() => this.setState({selectRotationPopup: false})}/> : <Modal title={this.state.data.elementId != 0 ? 'Modifier élément' : 'Créer élément'} body={body} footer={footer} onClose={this.onClose} />;
+        return this.state.selectRotationPopup ? <ModalRotationSelector data={this.state.data.res} onSave={(rot) => this.onSelectRotation(rot)} onClose={() => this.setState({selectRotationPopup: false})}/> : <Modal size="lg" title={this.state.data.elementId != 0 ? 'Modifier élément' : 'Créer élément'} body={body} footer={footer} onClose={this.onClose} />;
     }
 
     checkValidity(){
@@ -1196,21 +1196,21 @@ class ModalElementForm extends Component
                 body =
                 <Form noValidate onSubmit={this.onSubmit} validated={this.state.formValidated} ref={this.formRef}>
                     <Alert variant='primary'>{"Ceci va créer une zone de texte dans la scène."}</Alert>
-                    <Form.Row>
+                    <Row>
                         <Form.Group as={Col}>
                             <Form.Label>{"Texte"}</Form.Label>
                             <TextEditor required html={this.state.data.text} name="text" onChange={this.onDataChange}/>
                         </Form.Group>
-                    </Form.Row>
-                    <Form.Row>
+                    </Row>
+                    <Row>
                         <Form.Group as={Col}>
                             <Form.Label>{"Aperçu"}</Form.Label>
                                 <div style={{backgroundColor: 'rgba(0,0,0,200)', padding: '20px', borderRadius: '10px', color: '#fff', width: 'fit-content', maxWidth: '400px'}} dangerouslySetInnerHTML={{__html: this.state.data.text}} id="textpreview">
                                     
                                 </div>
                         </Form.Group>
-                    </Form.Row>
-                    {!this.state.data.isEditing && <Form.Row>
+                    </Row>
+                    {!this.state.data.isEditing && <Row>
                         <Form.Group as={Col}>
                             <Form.Label>Placer en tant que hotspot</Form.Label>
                             <ToggleButtons name="hotspot" type="radio" defaultValue={[this.state.data.hotspot]} onChange={this.onDataChange} 
@@ -1219,19 +1219,19 @@ class ModalElementForm extends Component
                                         {value: false, text:"Non"}
                                     ]}/>
                         </Form.Group>
-                    </Form.Row>}
+                    </Row>}
                 </Form>;
                 break;
             case 'navigation':
                 body = 
                 <div>
                 <Alert variant='primary'>{"Ceci va créer un bouton qui redirigera vers un autre scène lorsque cliqué."}</Alert>
-                <Form.Row>
+                <Row>
                     <Form.Group as={Col}>
                         <Form.Label>{$glVars.i18n.tags.name}</Form.Label>
                         <Form.Control type="text" required value={this.state.data.name} name="name" onChange={this.onDataChange}/>
                     </Form.Group>
-                </Form.Row>
+                </Row>
                     <div className='d-flex' style={{flexWrap: 'wrap'}}>
                         {this.props.resourceList.map((item, index) => {
                             let style = {textAlign: "center"};
@@ -1272,29 +1272,29 @@ class ModalElementForm extends Component
                 body = 
                 <div>
                 <Alert variant='primary'>{"Ceci va créer un bouton qui va ouvrir un popup avec la page choisi lorsque cliqué."}</Alert>
-                <Form.Row>
+                <Row>
                     <Form.Group as={Col}>
                         <Form.Label>{$glVars.i18n.tags.name}</Form.Label>
                         <Form.Control type="text" required value={this.state.data.name} name="name" onChange={this.onDataChange}/>
                     </Form.Group>
-                </Form.Row>
-                <Form.Row>
+                </Row>
+                <Row>
                     <Form.Group as={Col}>
                         <Form.Label>Activité</Form.Label>
                         <ComboBoxPlus options={this.state.activityList} value={this.state.data.activity} name="activity" onChange={(e) => this.onDataChange(e)}/>
                     </Form.Group>
-                </Form.Row>
-                <Form.Row>
+                </Row>
+                <Row>
                     <Form.Group as={Col}>
                         <Form.Label>URL</Form.Label>
                         <Form.Control type="text" required value={this.state.data.url} disabled={this.state.data.activity?.length > 0} name="url" onChange={this.onDataChange}/>
                     </Form.Group>
-                </Form.Row>
-                    <Form.Row>
+                </Row>
+                    <Row>
                         <Form.Group as={Col}>
                             <Form.Label>L'URL spécifié doit accepter les iframe</Form.Label>
                         </Form.Group>
-                    </Form.Row>
+                    </Row>
                 </div>;
                             //<ToggleButtons name="external" type="radio" defaultValue={[this.state.data.external]} onChange={this.onDataChange}          options={[       {value: true, text:"Oui"},                    {value: false, text:"Non"}                ]}/>
                 break;
@@ -1302,14 +1302,14 @@ class ModalElementForm extends Component
                 body =
                 <Form noValidate onSubmit={this.onSubmit} validated={this.state.formValidated} ref={this.formRef}>
                     <Alert variant='primary'>{"Ceci va créer une image dans la scène."}</Alert>
-                    <Form.Row>
+                    <Row>
                         <Form.Group as={Col}>
                             <Form.Label>{"Fichier"}</Form.Label><br/>
-                            {(!this.state.data.file || this.state.data.file.length == 0 || this.state.data.file.fileName) && <BtnUpload type="file" accept="image/jpeg,image/png" className='ml-1' required name='file' onChange={(e) => this.onFileChange(e)}/>}
-                            {this.state.data.file && this.state.data.file.length > 0 && <span className='ml-1'>{this.state.data.file}</span>}
-                            {this.state.data.file && this.state.data.file.content && <span className='ml-1'><img src={this.state.data.file.content} width="200" onLoad={(e) => this.setImageSize('file', e)}/></span>}
+                            {(!this.state.data.file || this.state.data.file.length == 0 || this.state.data.file.fileName) && <BtnUpload type="file" accept="image/jpeg,image/png" className='ms-1' required name='file' onChange={(e) => this.onFileChange(e)}/>}
+                            {this.state.data.file && this.state.data.file.length > 0 && <span className='ms-1'>{this.state.data.file}</span>}
+                            {this.state.data.file && this.state.data.file.content && <span className='ms-1'><img src={this.state.data.file.content} width="200" onLoad={(e) => this.setImageSize('file', e)}/></span>}
                         </Form.Group>
-                    </Form.Row>
+                    </Row>
                 </Form>;
                 break;
             case 'sound':
@@ -1317,14 +1317,14 @@ class ModalElementForm extends Component
                 body = 
                 <div>
                     <Alert variant='warning'>{`La taille maximum du fichier est de ${this.MAX_UPLOAD_SIZE} MB.`}</Alert>
-                <Form.Row>
+                <Row>
                     <Form.Group as={Col}>
                         <Form.Label>Fichier</Form.Label><br/>
-                        {(this.state.data.file == undefined || this.state.data.file.length == 0 || this.state.data.file.fileName) && <BtnUpload type="file" accept=".mp3,.mp4,.mkv,.avi" className='ml-1' required name='file' onChange={(e) => this.onFileChange(e)}/>}
-                        {this.state.data.file && this.state.data.file.length > 0 && <span className='ml-1'>{this.state.data.file}</span>}
+                        {(this.state.data.file == undefined || this.state.data.file.length == 0 || this.state.data.file.fileName) && <BtnUpload type="file" accept=".mp3,.mp4,.mkv,.avi" className='ms-1' required name='file' onChange={(e) => this.onFileChange(e)}/>}
+                        {this.state.data.file && this.state.data.file.length > 0 && <span className='ms-1'>{this.state.data.file}</span>}
                     </Form.Group>
-                </Form.Row>
-                    <Form.Row>
+                </Row>
+                    <Row>
                         <Form.Group as={Col}>
                             <Form.Label>Jouer en boucle</Form.Label>
                             <ToggleButtons name="loop" type="radio" defaultValue={[this.state.data.loop]} onChange={this.onDataChange} 
@@ -1333,8 +1333,8 @@ class ModalElementForm extends Component
                                         {value: false, text:"Non"}
                                     ]}/>
                         </Form.Group>
-                    </Form.Row>
-                    <Form.Row>
+                    </Row>
+                    <Row>
                         <Form.Group as={Col}>
                             <Form.Label>Jouer automatiquement quand la page se charge</Form.Label>
                             <ToggleButtons name="autoplay" type="radio" defaultValue={[this.state.data.autoplay]} onChange={this.onDataChange} 
@@ -1343,7 +1343,7 @@ class ModalElementForm extends Component
                                         {value: false, text:"Non"}
                                     ]}/>
                         </Form.Group>
-                    </Form.Row>
+                    </Row>
                 </div>;
                 break;
             default:
@@ -1353,7 +1353,7 @@ class ModalElementForm extends Component
 
         let appendToAll = <div key="3"></div>;
         if (this.props.type != 'text'){
-        appendToAll = <Form.Row key="2">
+        appendToAll = <Row key="2">
             <Form.Group as={Col}>
                 <Form.Label>Completion</Form.Label>
                 <ToggleButtons name="completion" type="radio" defaultValue={[this.state.data.completion]} onChange={this.onDataChange} 
@@ -1362,7 +1362,7 @@ class ModalElementForm extends Component
                             {value: 0, text:"Non"}
                         ]}/>
             </Form.Group>
-        </Form.Row>;
+        </Row>;
         }
 
         return [<div key="1">{body}</div>,appendToAll];
@@ -1494,7 +1494,7 @@ class ModalRotationSelector extends Component
                 <Button variant="success" onClick={() =>this.onSave()}><FontAwesomeIcon icon={faSave}/>{" Enregistrer"}</Button>
             </ButtonGroup></div>;
 
-        return <Modal width="50%" title={'Selectionner la rotation de départ'} body={body} footer={footer} onClose={this.onClose} />;
+        return <Modal title={'Selectionner la rotation de départ'} body={body} footer={footer} onClose={this.onClose} />;
     }
 
     onSave(){

@@ -63,3 +63,5 @@ document.addEventListener('DOMContentLoaded', function(){
     const root = createRoot(domContainer);
     root.render(<App tourId={domContainer.getAttribute('data-tour-id')}/>);
 }, false);
+
+console.log("c");

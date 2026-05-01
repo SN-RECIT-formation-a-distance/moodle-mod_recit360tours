@@ -2,8 +2,9 @@ import { faParagraph, faSave, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { Component } from 'react';
 import { Button, Modal } from 'react-bootstrap';
-import ReactQuill, {Quill} from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import ReactQuill, {Quill} from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
+import { ClassAttributor, StyleAttributor, Scope } from 'parchment';
 
 export class TextEditor extends Component {
     static defaultProps = {
@@ -224,31 +225,31 @@ export class FaRule extends Inline {
 }
 
 const Parchment = Quill.import('parchment');
-let Align = new Parchment.Attributor.Class('fa', 'iconrecit');
-Parchment.register(Align);
+let Align = new ClassAttributor('fa', 'iconrecit');
+Quill.register(Align);
 Quill.register(FaRule);
 
-class IndentAttributor extends Parchment.Attributor.Style {
+class IndentAttributor extends StyleAttributor {
     multiplier = 2;
   
     constructor(name, style, params) {
-      super(name, style, params);
+        super(name, style, params);
     }
   
     add(node, value) {
-      return super.add(node, `${value * this.multiplier}rem`);
+        return super.add(node, `${value * this.multiplier}rem`);
     }
   
     value(node) {
-      return parseFloat(super.value(node)) / this.multiplier || undefined;
+        return parseFloat(super.value(node)) / this.multiplier || undefined;
     }
 }
 
 const levels = [1, 2, 3, 4, 5];
 const multiplier = 2;
 const indentStyle = new IndentAttributor('indent', 'margin-left', {
-  scope: Parchment.Scope.BLOCK,
-  whitelist: levels.map(value => `${value * multiplier}rem`),
+    scope: Scope.BLOCK,
+    whitelist: levels.map(value => `${value * multiplier}rem`),
 });
 
 Quill.register(indentStyle);
