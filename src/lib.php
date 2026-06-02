@@ -223,6 +223,12 @@ function recit360tours_check_completion($cmid, $userid){
 function recit360tours_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
     global $DB;
 
+    require_login($course, true, $cm);
+
+    if (!has_capability('mod/recit360tours:view', $context)) {
+        return false;
+    }
+
     if ($filearea == 'resources') {
         $data = $DB->get_records_sql('select * from {files} where contextid = ? and filename = ?', array($context->id, $args[1]));
         $data = array_values($data);

@@ -3,14 +3,20 @@ import { $glVars } from './common';
 import { Options } from './Options';
 
 export class AppWebApi extends WebApi
-{    
+{
     constructor(){
         super(Options.getGateway());
-                
+
         this.http.useCORS = true;
         this.sid = 0;
         this.observers = [];
         this.http.timeout = 30000; // 30 secs
+    }
+
+    // Inject the Moodle sesskey into every request for CSRF protection.
+    post(url, data, callbackSuccess, callbackError, showFeedback) {
+        const payload = Object.assign({}, data, {sesskey: M.cfg.sesskey});
+        super.post(url, payload, callbackSuccess, callbackError, showFeedback);
     }
 
     addObserver(id, update, observables){
@@ -50,7 +56,7 @@ export class AppWebApi extends WebApi
     }
 
     getSceneFormKit(resourceId, onSuccess){
-        let data = {resourceId: resourceId, service: "getSceneFormKit"};
+        let data = {resourceId: resourceId, cmId: $glVars.urlParams.id, service: "getSceneFormKit"};
         this.post(this.gateway, data, onSuccess);
     }
 

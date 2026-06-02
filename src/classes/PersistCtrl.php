@@ -72,10 +72,10 @@ class PersistCtrl extends MoodlePersistCtrl
         return array_pop($list);
     }
 
-    public function deleteScene($sceneId){  
+    public function deleteScene($sceneId){
         global $DB;
         try {
-            $DB->execute("DELETE FROM {recit360tours_views} WHERE objectid IN (SELECT id FROM {recit360tours_objects} WHERE sceneid=$sceneId)");
+            $DB->execute("DELETE FROM {recit360tours_views} WHERE objectid IN (SELECT id FROM {recit360tours_objects} WHERE sceneid=?)", [$sceneId]);
             $DB->delete_records('recit360tours_scenes', array('id'=>$sceneId));
             $DB->delete_records('recit360tours_objects', array('sceneid'=>$sceneId));
         }catch (Exception $e){}
@@ -93,7 +93,7 @@ class PersistCtrl extends MoodlePersistCtrl
             
             if (isset($data->image->content)){
                 $filesave = $data->image;
-                $data->image = uniqid().'_'.$filesave->fileName;
+                $data->image = uniqid() . '_' . clean_filename($filesave->fileName);
                 
                 $fs = get_file_storage();
                 $file = substr($filesave->content, strpos($filesave->content, ',') + 1, strlen($filesave->content));
@@ -167,14 +167,30 @@ class PersistCtrl extends MoodlePersistCtrl
 
     public function saveObjectView($objectId, $userId){
         global $DB;
-        
+
         $timeViewed = time();
-        
-        $DB->execute("insert into {recit360tours_views} (objectid, userid, timeviewed)
-        values($objectId, $userId, $timeViewed)
-        ON DUPLICATE KEY UPDATE timeviewed = '$timeViewed'");
+
+        $DB->execute(
+            "INSERT INTO {recit360tours_views} (objectid, userid, timeviewed) VALUES(?, ?, ?) ON DUPLICATE KEY UPDATE timeviewed = ?",
+            [$objectId, $userId, $timeViewed, $timeViewed]
+        );
 
         return true;
+    }
+
+    /**
+     * Returns true when $objectId belongs to a scene that is part of the tour
+     * associated with $cmId. Used to prevent cross-activity IDOR in saveObjectView.
+     */
+    public function objectBelongsToCm($objectId, $cmId) {
+        global $DB;
+        $sql = "SELECT t2.id
+                FROM {recit360tours_objects} t2
+                INNER JOIN {recit360tours_scenes} t1 ON t2.sceneid = t1.id
+                INNER JOIN {course_modules} t3 ON t3.instance = t1.tourid
+                INNER JOIN {modules} m ON m.id = t3.module AND m.name = 'recit360tours'
+                WHERE t2.id = ? AND t3.id = ?";
+        return $DB->record_exists_sql($sql, [$objectId, $cmId]);
     }
 
     public function getLastViewedScene($tourId, $userId){
@@ -248,7 +264,7 @@ class PersistCtrl extends MoodlePersistCtrl
     public function saveFile($obj){
         $context = \context_module::instance($obj->cmId);
         $filesave = $obj->file;
-        $obj->file = uniqid().'_'.$filesave->fileName;
+        $obj->file = uniqid() . '_' . clean_filename($filesave->fileName);
         
         $fs = get_file_storage();
         $file = substr($filesave->content, strpos($filesave->content, ',') + 1, strlen($filesave->content));

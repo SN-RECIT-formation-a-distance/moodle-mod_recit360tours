@@ -1,6 +1,14 @@
 <?php
 $string['pluginname'] = 'Activité RÉCIT image 360';
-$string['privacy:metadata'] = 'Ce plugin ne conserve aucune donnée personelle.';
+$string['privacy:metadata'] = 'Ce plugin conserve des données d\'activité des utilisateurs tel que décrit ci-dessous.';
+
+$string['privacy:metadata:recit360tours_views']            = 'Enregistre quels objets d\'une visite 360 un utilisateur a consultés et à quel moment.';
+$string['privacy:metadata:recit360tours_views:userid']     = 'L\'identifiant de l\'utilisateur qui a consulté l\'objet.';
+$string['privacy:metadata:recit360tours_views:objectid']   = 'L\'identifiant de l\'objet consulté.';
+$string['privacy:metadata:recit360tours_views:timeviewed'] = 'L\'horodatage de la dernière consultation de l\'objet.';
+
+$string['privacy:metadata:recit360tours_scenes']            = 'Enregistre l\'auteur de chaque scène de visite 360.';
+$string['privacy:metadata:recit360tours_scenes:creatorid']  = 'L\'identifiant de l\'utilisateur qui a créé la scène.';
 $string['userpreferences'] = "Préférences de l'utilisateur";
 $string['recit360tours:addinstance'] = "Ajouter une instance";
 $string['recit360tours:view'] = "Vue";

@@ -70,7 +70,7 @@ class MainView
 
         echo $this->output->header();
 
-        echo sprintf("<div id='mod_recit360tours' data-tour-id='%ld'></div>", $this->cm->instance);
+        echo sprintf("<div id='mod_recit360tours' data-tour-id='%d'></div>", intval($this->cm->instance));
 
         echo $this->output->footer();
     }

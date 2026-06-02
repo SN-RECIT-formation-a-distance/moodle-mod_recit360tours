@@ -84,11 +84,17 @@ abstract class AWebApi
             }
 
             $this->lastResult = new WebApiResult($success, null, $msg);
-			return false;
+            return false;
         }
-		
+
         if(!PersistCtrl::getInstance()->checkSession()){
             $this->lastResult = new WebApiResult(false, null, "Utilisateur non connecté.");
+            return false;
+        }
+
+        // CSRF protection: verify Moodle session key on every request.
+        if (!confirm_sesskey($this->request['sesskey'] ?? '')) {
+            $this->lastResult = new WebApiResult(false, null, "Clé de session invalide.");
             return false;
         }
 
@@ -101,7 +107,15 @@ abstract class AWebApi
         }
 
         $serviceWanted = $this->request['service'];
-		$result = $this->$serviceWanted($this->request);	
+
+        // Whitelist check — prevents calling arbitrary public methods.
+        $allowed = isset(static::$allowedServices) ? static::$allowedServices : [];
+        if (!in_array($serviceWanted, $allowed, true)) {
+            $this->lastResult = new WebApiResult(false, null, "Service non trouvé.");
+            return;
+        }
+
+        $result = $this->$serviceWanted($this->request);
 
         $this->lastResult = $result;
     }
